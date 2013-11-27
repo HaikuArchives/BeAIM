@@ -1,0 +1,26 @@
+BeAIM Credits:
+
+Main Development:
+Greg Nichols  <nicholsg@central.edu>
+
+Source contributions:
+Sean Heber, Justin Mierta, Peter Folk
+
+BeAIM info and downloads at:
+BeAIM on BeBits - http://www.bebits.com/app/1/
+The BeAIM page - http://www.fifthace.com/beaim
+
+Stolen code and classes:
+classSound - Sean Heber <sean@gimmick.org>
+PassControl - John Wiggins <john@ubermensch.net>
+str (now DataContainer) class - David Nugent <john@ubermensch.net>
+MakSplitterView - Makhno  <imakhno.freeserve.co.uk>
+FAIM - Adam Fritzler <mid@auk.cx>
+LAIM - Jae Jang <akubi@stones.com>
+Be sample code - Be, Inc. <http://www.be.com>
+YLanguageClass - YNOP Talton <ynop@acm.org>
+
+... probably more that I have forgotten. I will add them as I find them.
+
+Special Thanks To:
+All the various BeAIM users out there for, well, using it and providing feedback, Sean Heber and Justin Mierta for beta testing and providing some terribly useful source code, all of the BeAIM users who have suggested features and sent bug reports, the swell folks on BeDevTalk, Adam Fritzler for much-needed protocol information, WinTECH software for giving me a great discount on some really nice packet sniffing software that probably doubled development speed, a bunch of nice and helpful users who I really don't have time to thank individually since I'm kind of in a hurry at this point, and God Almighty, without whom humanity would have been impossible, to say nothing of BeAIM.   :-)

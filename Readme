@@ -1,0 +1,48 @@
+BeAIM 1.5.6
+
+READ ME:  BeAIM works pretty well, but it is not perfect. If you choose to use it, you take all responsibility for anything bad that might happen on yourself. It might crash your system. It might format your hard drive. It might eat your files. It might buy the Statue of Liberty and bill your credit card. It might puncture your tires. If it does any of the above, e-mail and let me know, as I'll be terribly impressed... but in any case, if that or anything else bad happens to you, I'm sorry, but it's not my fault! You have been warned.
+
+Of course, if it actually does any of that stuff, there are probably major problems...  :-)
+
+What's new in version 1.5.6:
+√  Enough with this -beta# nonsense.  This is 1.5.6.  The -beta# tag will only return in
+     releases that are for testing only.
+√  First, some old bugs, all brought to me by NathanW (via BeShare):
+     √  Parts of the "Get Info" window were created in the wrong order, causing display
+         errors on Dano and its ilk.
+     √  A fencepost error in the HTML parsing code made the formatting go screwy.
+√  The networking threads have been fixed to syncronise properly during logon.
+√  Semi-real rate limiting, for the internal components.  It's still possible for you to
+     exceed the limit and get that nice message from the server.
+√  Local storage of the buddy list makes a return.  It turns out that I suck at this
+     programming thing :)
+√  Because of this, you can once again set the order of the list.  But that's only
+     locally, because SSI doesn't allow for rearranging very nicely.
+√  Useless update for this release: Add my name to the About box.  I deserve some 
+     credit, don't I?
+
+Stuff you really need to know before using this thing:
+
+While BeAIM  is pretty stable, it's not perfect! It works very well for me and most other people, and have spent some serious time whumping away on the stability issues, and it's much improved... but there are still some improvements I can make.
+
+To do this, I need your help: if BeAIM crashes on you, send me a stack crawl! This is actually pretty easy... I have included information on how to do it in the file named "In case of crashes..." Also, please send me bug reports when anything weird happens. Chances are I know about it, but the more info I can get the easier it is to fix.
+
+What to do if BeAIM crashes:
+Check out the file named "In case of crashes..."
+
+Bug Reports!
+It would bring me endless joy if you would submit bug reports when you find a problem. Include common sense stuff like,
+
+1. What were you doing when the problem occurred?
+2. Can you reproduce the problem reliably (a biggie!!)
+3. Basic system information.
+
+Please don't send me information about things that don't work yet; believe me, I know more about that than you do! But if you find something you think is a bug, by all means, submit it! Send all that to gile@csh.rit.edu.
+
+Contact Info
+The BeAIM page is currently up at:
+http://csh.rit.edu/~gile/projects/beaim/
+
+This might change, but even if it does, I will keep a copy there for a while. If you can't find the page for whatever reason, feel free to email me at gile@csh.rit.edu. If you can, please include the word BeAIM in the subject line - for filtering purposes, for me.
+
+Also, don't hesitate to send in suggestions, ideas... anything you think will be helpful. No, really! I love getting email from users... it makes me feel all warm and fuzzy. And sometimes I miss the most obvious ideas, so I need your input!

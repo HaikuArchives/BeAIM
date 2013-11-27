@@ -1,0 +1,31 @@
+Translating BeAIM
+
+Thanks to YNOP Talton's YLanguageClass library, BeAIM can be translated into a bunch of different languages using external language files. This is pretty easy to do, so if you are fluent in English and another language, go for it! Here's how.
+
+How to do it
+To start with, open the English language file. This is stored wherever the BeAIM executable is, inside the Languages subdirectory. Save a copy of the "English" file as the name of the language you want to translate BeAIM into; for example, the French language file is named "Les français".
+
+Inside the file, you'll find many lines of text. Some have two forward slashes (//) in front, like this:
+// search results stuff...
+
+These are comments; please leave them as they are. The lines you're looking for have a name and an associated string of text, like this:
+SR_SEARCH_RESULTS = "Search Results"
+
+All you need to do is translate the text on the right, inside the quotes - do not translate the name, SR_SEARCH_RESULTS in this case, which is on the left hand side.
+
+If you can, try and keep the translated string about the same length as the English string. This isn't always possible, of course, and BeAIM does its best to compensate for strings of different lengths. But things will go a lot smoother if the lengths are close, especially for short strings used for things like labels. (For error messages and such, it doesn't really matter, since they're displayed in a message box).
+
+Sometimes you'll run into strings like this:
+SR_MATCHES_FOUND = "%COUNT matches found."
+
+Words like %COUNT, that are all uppercase and start with a % sign, should not be translated. BeAIM will replaces %COUNT with an actual values inside the program, so %COUNT needs to be present in the final, translated string.
+
+Make sure all the strings in the file are translated to the new language, and you're done! Make sure to give yourself credit by changing the value of the first entry of the file, TRANSLATED_BY, to your name. Thanks!
+
+How to test it
+There's a "secret" setting in BeAIM that makes it easier to test the language files. Hold down the Shift key when you are opening the Preferences Window, and a new button will appear marked "Apply Lang". Pressing this button will make BeAIM reload the language file and refresh all the strings in the program. This lets you make and test changes in the language file without having to be reloading the Preferences window constantly.
+
+When you're done
+... send your language files to greg@fifthace.com, and I'll (eventually) get it included in the BeAIM distribution.
+
+Thanks, and good luck!

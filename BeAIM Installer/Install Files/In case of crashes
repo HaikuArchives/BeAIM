@@ -1,0 +1,16 @@
+In case of crashes...
+
+This is stuff you can do to make debugging BeAIM much easier for me! No, you don't have to send me bug reports every time BeAIM decides to hit the dirt. But if there's a problem for you, it's a good bet that there's a problem for lots of other folks, too. So do us all a favor and send in those bug reports!
+
+When that dreaded little box appears on the screen telling you BeAIM has crashed, don't press OK!  Instead, follow these simple steps...
+
+Step 1:  Do a stack crawl.
+Don't know what a stack crawl is? Don't worry... you can still do one, and it helps me immensely. You didn't press OK, did you? Good. Instead, press "Details." Then press "Debugger." BeOS will pop up a terminal window with lots of scary looking stuff in it, and a blinking text prompt. Type the two letters sc, and hit Enter. Then copy everything that's in the terminal window and send it to me, along with a brief description of what you were doing when it crashed.
+
+Step 2:  Try to duplicate the problem.  
+Stop, and think about exactly what you were doing. Then, open up BeAIM, and see if you can get it to crash again. Please do this! While some problems will just be a fluke, others will happen reliably whenever you do a particular thing. I need to know exactly what you did to cause BeAIM to crash... if I can't reproduce a problem, then I will have a heckuva time trying to fix it.
+
+Step 3:  Send the bug report.
+I need as much information as you can give me: the results of your stack crawl, as well as your BeAIM version, your BeOS platform and version, and some other juicy tidbits. More information can be found on the Contact page of the BeAIM home page.
+
+Then wrap the whole thing up in a nice email and send it to greg@fifthace.com. Thanks!

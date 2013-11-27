@@ -1,0 +1,117 @@
+BeAIM 1.5.6-beta1
+
+READ ME:  BeAIM works pretty well, but it is not perfect. If you choose to use it, you take all responsibility for anything bad that might happen on yourself. It might crash your system. It might format your hard drive. It might eat your files. It might buy the Statue of Liberty and bill your credit card. It might puncture your tires. If it does any of the above, e-mail and let me know, as I'll be terribly impressed... but in any case, if that or anything else bad happens to you, I'm sorry, but it's not my fault! You have been warned.
+
+Of course, if it actually does any of that stuff, there are probably major problems...  :-)
+
+What's new in version 1.5:
+
+A lot! Virtually every part of the code has been reworked, and the end result is *much* nicer than the previous version. Here's a short list of what's new:
+
+√  Many, many, many, many bugfixes
+√  New graphics and sounds that are AOL-free
+√  Drag-and-drop buddy list reordering (in the Buddy List Editor)
+√  Much more stable
+√  Can be translated into any language (comes with English and French)
+√  A bunch of user interface improvements
+√  And a whole lot more!
+
+What's new in version 1.5.1:
+√  Fixed the really stupid "backwards /me" bug
+√  Fixed a UI problem with the French translation in the Buddy List Editor
+√  Now installs into /boot/apps instead of /boot/beos/apps (whoops!)
+√  Added "how to translate" file
+
+What's new in version 1.5.2:
+√  New German language file (courtesy of Daniel Warmuth)
+√  Now works on the latest copy of BONE (courtesy of Peter Folk)
+√  Some other minor bug fixes (courtesy of me)
+
+What's new in version 1.5.5-beta0:
+√  First release in nearly two years (so, we skip two versions)
+√  New maintainer (as it stands now): Kyle Donaldson <gile@uselink.net>
+√  Compiles (and runs!) on Dano and/or BONE
+√  A configuration bug made evident in Dano fixed (a BString problem).
+√  YLanguageClass replaced with a compatible, yet open-source version.
+     This could possibly mean a PPC version, since YLanguageClass looks to be
+     x86 only.
+√  Automatic conversation logging support.
+√  Configuration interface for Buddy Icons is there, without the backend support.  Yet.
+√  Random code cleanups.
+
+What's new in version 1.5.5-beta1:
+√  Sorry, the last release truly was beta.
+√  <, >, & can all be used without escaping, if the "No HTML" option is enabled.
+    There's no global option for it, but under the Window menu of a chat window, it's there.
+√  Alt-H switches the "No HTML" mode.
+√  Adding configuration for logging (select the save directory).  It may or may not work.
+√  The default logging directory was changed, to lay things out cleanly.
+√  More code in the Buddy Icon area.  Chat windows have the icon "well" needed to
+     display icons later.
+√  In the last version, the bubble that pops up when hovering over a buddy in the
+     buddylist was disabled.  This is because of a bug on Dano and some BONE systems.
+√  Throw a translatable image in /boot/home/beaim_icon and watch the icon show up... :)
+√  Some Style code was re-enabled, which doesn't work yet.  It will be fixed.
+
+What's new in version 1.5.5-beta2:
+√  Reorganised the code.  All those files in a single directory wasn't easy to work with.
+√  Internationalised the Logging and Buddy Icon preference panels.
+√  Logging and Buddy Icon preference panels are finished and functional.
+√  Figured out the problem with Dano builds: Broken Be headers.  Look in
+     "BeAIM 1.5.5 Source/Dano Headers/" for a fix.
+√  With the addition of more configuration, the language files need to be updated.
+√  No HTML option is now globally configurable.
+√  Logging can be turned off on a per-conversation basis.
+√  Finally added my name to the About box (because that's important :)).
+
+What's new in version 1.5.6-beta0:
+√  Sorry about the crappiness of 1.5.5... 1.5.6-beta0 is 1.5.2 with enhancements from
+     the 1.5.5 series rolled back in.
+√  Buddy information bubbles are re-enabled.  They even work on Dano.  Who the hell
+     knows about Zeta.
+√  Logging and Buddy Icons have not been rolled in, a proper implementation having
+     not yet been written.
+√  Logon fixed to not go too fast for AIM.
+√  Turkish language file added (thanks to bauhaus)
+√  Italian language file added (thanks to Mattia Tristo)
+√  MD5 code added for later logon method upgrade.
+√  Set up the Idle Time Filter for PPC compile.  ...and include it in the package
+     builder.
+
+What's new in version 1.5.6-beta1:
+√  Server-Side-Information support added.  Yes, that means we load and store
+     the buddy list from the Oscar servers.  w00t.
+√  Put a real fix in for the incompatible Dano (and Zeta?) system headers
+     (thanks to scanty@BeShare)
+√  Subsequently, the "Dano Headers/" directory has been removed.
+√  Imported revised PrefsManager code from 1.5.5.  Now schtuff works.
+√  Invalidate the information window after loading, to ensure a screen refresh
+     (again: scanty@BeShare)
+√  Blew away the BeIDE project files.  We use the makefile-engine now, which
+     means that PPC support should work 'right out of the box.'
+
+Stuff you really need to know before using this thing:
+
+While BeAIM  is pretty stable, it's not perfect! It works very well for me and most other people, and have spent some serious time whumping away on the stability issues, and it's much improved... but there are still some improvements I can make.
+
+To do this, I need your help: if BeAIM crashes on you, send me a stack crawl! This is actually pretty easy... I have included information on how to do it in the file named "In case of crashes..." Also, please send me bug reports when anything weird happens. Chances are I know about it, but the more info I can get the easier it is to fix.
+
+What to do if BeAIM crashes:
+Check out the file named "In case of crashes..."
+
+Bug Reports!
+It would bring me endless joy if you would submit bug reports when you find a problem. Include common sense stuff like,
+
+1. What were you doing when the problem occurred?
+2. Can you reproduce the problem reliably (a biggie!!)
+3. Basic system information.
+
+Please don't send me information about things that don't work yet; believe me, I know more about that than you do! But if you find something you think is a bug, by all means, submit it! Send all that to gile@csh.rit.edu.
+
+Contact Info
+The BeAIM page is currently up at:
+http://csh.rit.edu/~gile/code/beaim/
+
+This might change, but even if it does, I will keep a copy there for a while. If you can't find the page for whatever reason, feel free to email me at gile@csh.rit.edu. If you can, please include the word BeAIM in the subject line - for filtering purposes, for me.
+
+Also, don't hesitate to send in suggestions, ideas... anything you think will be helpful. No, really! I love getting email from users... it makes me feel all warm and fuzzy. And sometimes I miss the most obvious ideas, so I need your input!
