@@ -26,41 +26,41 @@ void AIMNetManager::DecodeBuddyStuff( DataContainer data, short& i, BMessage* va
 	sn[snLength] = '\0';
 	i += snLength;
 	if( values )
-		values->AddString( "userid", sn );	
-	
+		values->AddString( "userid", sn );
+
 	printf( "BUDDY_TLV... screen name (%d chars): %s\n", (int)snLength, sn );
 	delete sn;
-	
+
 	// Get the sender's warning level
 	warningLevel = (unsigned short)( rint( (double)GetWord(data,i) / 10.0 ) );
 	i += 2;
 	if( values )
 		values->AddInt32( "warninglevel", (int32)warningLevel );
-	
+
 	printf( "BUDDY_TLV... warning level %d\n", warningLevel );
-	
+
 	// Get the number of TLV's in the packet
 	numTLVs = (unsigned short)GetWord( data, i );
 	i += 2;
 
 	printf( "BUDDY_TLV... %d TLV's in this packet\n", numTLVs );
-	
+
 	// Go through and grab the rest of the TLV's
 	for( unsigned short j = 0; j < numTLVs; ++j ) {
-	
+
 		// Grab the type code and length
 		typeCode =	(unsigned short)GetWord( data, i );
 		tlvLen = (unsigned short)GetWord( data, i+2 );
 		i += 4;
-		
+
 		// we'll assume at first that the user is *not* away...
 		values->AddBool( "away", false );
 
 		// grab data based on the type code
 		switch( typeCode ) {
-		
+
 			// classes... 0x10=free, 0x04=AOL... 0x11 is the "new" AIM
-			case 0x01:	
+			case 0x01:
 				userClass = (unsigned short)GetWord( data, i );
 				i += 2;
 				if( userClass == 0x10 )
@@ -84,7 +84,7 @@ void AIMNetManager::DecodeBuddyStuff( DataContainer data, short& i, BMessage* va
 				else
 					printf( "BUDDY_TLV... Class = Huh? (unknown, val=0x%X)\n", userClass );
 				break;
-				
+
 			case 0x02:	// member since date
 				temp = (unsigned short)GetWord( data, i );
 				memberSince = (temp << 16) + (unsigned short)GetWord( data, i+2 );
@@ -94,25 +94,25 @@ void AIMNetManager::DecodeBuddyStuff( DataContainer data, short& i, BMessage* va
 				i += 4;
 				if( values )
 					values->AddData( "membersince", B_TIME_TYPE, (void*)&memberSince, sizeof(time_t) );
-				
+
 				t_s = localtime( &memberSince );
-				printf( "BUDDY_TLV: Member since date: %s", asctime(t_s) );				
+				printf( "BUDDY_TLV: Member since date: %s", asctime(t_s) );
 				break;
 
 			case 0x03:	// online since date
 				printf( "BUDDY_TLV: Online since date (ignoring)\n" );
 				i += 4;
 				break;
-			
+
 			case 0x04:	// idle time
 				idleTime = (unsigned short)GetWord( data, i );
 				i += 2;
 				if( values )
 					values->AddInt32( "idletime", (int32)idleTime );
-				
+
 				printf( "BUDDY_TLV: Idle time: %u\n", idleTime );
 				break;
-				
+
 			case 0x0d:
 				dTemp = data.getrange( i, tlvLen );
 				iTemp = GrabCapabilityStuff(dTemp);
@@ -135,7 +135,7 @@ void AIMNetManager::DecodeBuddyStuff( DataContainer data, short& i, BMessage* va
 			default:	// something unknown... just skip it
 				printf( "BUDDY_TLV: Unknown TLV: type 0x%X length (%d)\n", typeCode, tlvLen );
 				i += tlvLen;
-		}	
+		}
 	}
 }
 
@@ -145,10 +145,10 @@ void AIMNetManager::BuddyOnline( SNAC_Object& snac ) {
 
 	short i = 0;
 	BMessage* newBuddy = new BMessage( BEAIM_ONCOMING_BUDDY );
-	
+
 	// The buddy info comes at the beginnning... yank it out
 	DecodeBuddyStuff( snac.data, i, newBuddy );
-	
+
 	// Send the message if the client is ready
 	if( clientReady )
 		PostAppMessage( newBuddy );
@@ -163,17 +163,17 @@ void AIMNetManager::BuddyOffline( SNAC_Object& snac ) {
 	char name[DISPLAY_NAME_MAX];
 	BMessage* oldBuddy = new BMessage( BEAIM_OFFGOING_BUDDY );
 	char len;
-	
+
 	// get the screen name
 	len = snac.data[0];
 	printf( "logoff name len: %d\n", int(len) );
 
-	snac.data << char(0);	
+	snac.data << char(0);
 	strcpy( name, snac.data.c_ptr() + 1 );
 	printf( "offgoing name: %s\n", name );
 
 	oldBuddy->AddString( "userid", name );
-	PostAppMessage( oldBuddy );	
+	PostAppMessage( oldBuddy );
 }
 
 //-----------------------------------------------------
@@ -188,7 +188,7 @@ void AIMNetManager::RequestPersonInfo( BMessage* msg ) {
 	snac.data << ToAIMWord(0x0001)
 			  << char(strlen(msg->FindString("userid")))
 			  << msg->FindString("userid");
-			  
+
 	// add an object to the pending list
 	userRequestID rid;
 	rid.userid = AIMUser( msg->FindString("userid") );
@@ -212,7 +212,7 @@ void AIMNetManager::RequestAwayInfo( BMessage* msg ) {
 	snac.data << ToAIMWord(0x03)
 			  << char(strlen(msg->FindString("userid")))
 			  << msg->FindString("userid");
-			  
+
 	// add an object to the pending list
 	userRequestID rid;
 	rid.userid = AIMUser( msg->FindString("userid") );
@@ -232,23 +232,23 @@ void AIMNetManager::ReceivePersonInfo( SNAC_Object& snac ) {
 	// vars
 	BMessage* incomingInfo = new BMessage(BEAIM_UPDATE_INFO);
 	unsigned short type, length;
-	DataContainer temp;	
+	DataContainer temp;
 	short i = 0;
- 
+
 	// Grab the other person's info (from the beginning)
 	DecodeBuddyStuff( snac.data, i, incomingInfo );
-	
+
 	// get the encoding value and the profile (if they are there)
 	if( i < snac.data.length() ) {
-		
+
 		// There should be two TLV's in here...
 		for( int j = 0; j < 2; ++j ) {
-		
+
 			// get the type and the length
 			type = (unsigned short)GetWord( snac.data, i );
 			length = (unsigned short)GetWord( snac.data, i+2 );
 			i += 4;
-			
+
 			// get the data
 			temp = snac.data.getrange( i, length );
 			temp << char(0);
@@ -265,21 +265,21 @@ void AIMNetManager::ReceivePersonInfo( SNAC_Object& snac ) {
 				printf( "> Profile:\n%s\n", temp.c_ptr() );
 				incomingInfo->AddString( "profile", temp.c_ptr() );
 			}
-			
+
 			// away encoding?
 			else if( type == 0x03 ) {
 				printf( "> Away Encoding:\n%s\n", temp.c_ptr() );
 				incomingInfo->AddString( "encoding", temp.c_ptr() );
 			}
-			
+
 			// away?
 			else if( type == 0x04 ) {
 				printf( "> Away Message:\n%s\n", temp.c_ptr() );
 				incomingInfo->AddString( "away_message", temp.c_ptr() );
 			}
-		}	
+		}
 	}
-	
+
 	// Find this request in the pending list and delete it
 	userRequestID btemp;
 	int curPos = 0;
@@ -307,23 +307,23 @@ void AIMNetManager::UpdateServerBuddyList( BMessage* msg ) {
 
 	// Set up a SNAC object, with the correct fields to ADD (not remove) a person
 	SNAC_Object snac( 0x03, 0x04, 0, 0, 0x1015 );
-	
+
 	// other vars we're gonna need (mostly to parse the list)
 	int l = 1;
 	char* i = (char*)msg->FindString("list");
 	char* q = i;
 	char name[50];
-	
+
 	if( msg->FindBool("add") )
 		printf( "ADDING to server buddy list\n" );
 	else
 		printf( "REMOVING from server buddy list\n" );
 	printf( "list: %s\n", i );
-	
+
 
 	// are we adding to or removing from the server's buddy list?
 	bool add = msg->FindBool("add");
-	
+
 	// the add command apparently has three sets of zeroes before the name list
 	if( add )
 		snac.data << ToAIMWord(0x00) << ToAIMWord(0x00) << ToAIMWord(0x00);
@@ -346,7 +346,7 @@ void AIMNetManager::UpdateServerBuddyList( BMessage* msg ) {
 			else SendRemovePersonMessage( q, int(l-1) );
 		}
 	}
-	
+
 	// if we are adding screen names, go ahead and send them
 	if( add )
 		SendSNACPacket( mainNetlet, snac );
@@ -384,13 +384,13 @@ void AIMNetManager::FailedPersonInfo( SNAC_Object& snac ) {
 		keepGoing = pendingRequests.Next(btemp);
 		++curPos;
 	}
-	
+
 	// OK... now fire off a failure message
 	if( keepGoing ) {
 		BMessage* incomingInfo = new BMessage(BEAIM_UPDATE_INFO);
 		incomingInfo->AddInt32( "wtype", (int32)USER_INFO_TYPE );
 		incomingInfo->AddString( "userid", (char*)btemp.userid.UserString() );
-		
+
 		// build an error message to send off
 		BString errorMsg = "<b>";
 		errorMsg.Append( Language.get("ERROR_LABEL") );
@@ -400,7 +400,7 @@ void AIMNetManager::FailedPersonInfo( SNAC_Object& snac ) {
 		else
 			errorMsg.Append( Language.get("IM_ERR_INVALID") );
 
-		// send it out			
+		// send it out
 		incomingInfo->AddString( "profile", errorMsg.String() );
 		PostAppMessage( incomingInfo );
 	}
@@ -410,17 +410,17 @@ void AIMNetManager::FailedPersonInfo( SNAC_Object& snac ) {
 
 void AIMNetManager::SetUserBlockiness( BMessage* msg, bool all ) {
 	BString theUser;
-	theUser = all ? BString() : msg->FindString( "userid" );
+	theUser = all ? "" : msg->FindString( "userid" );
 	SNAC_Object sendMsg;
-	
+
 	printf( "Setting user blockiness for %s: %s\n", all ? "[all]" : theUser.String(), (all || msg->FindBool("block")) ? "yup" : "nope" );
-	
+
 	// set the correct SNAC info
 	if( all || msg->FindBool("block") )
 		sendMsg.Update( 0x09, 0x07, 0x00, 0x00, 0x00 );
 	else
 		sendMsg.Update( 0x09, 0x08, 0x00, 0x00, 0x00 );
-		
+
 	// finally, tack on the screen name(s)
 	if( !all ) {
 		sendMsg.data << char(theUser.Length())						// sn length
@@ -432,9 +432,9 @@ void AIMNetManager::SetUserBlockiness( BMessage* msg, bool all ) {
 			sendMsg.data << char(tempName.Username().Length())				// sn length
 						 << (char*)tempName.UserString();					// sn
 			kg = users->GetNextBlockedUser( tempName, false );
-		}	
+		}
 	}
-				 
+
 	// Now that we've gone to all the trouble of making that, send it
 	SendSNACPacket( mainNetlet, sendMsg );
 }
@@ -444,7 +444,7 @@ void AIMNetManager::SetUserBlockiness( BMessage* msg, bool all ) {
 void AIMNetManager::SetClientReady() {
 	clientReady = true;
 	BMessage* tmpMsg;
-	
+
 	// now send off all the messages that are queued up
 	while( queuedClientMessages.Dequeue(tmpMsg) )
 		PostAppMessage( tmpMsg );

@@ -12,16 +12,16 @@
 //-----------------------------------------------------
 
 // main application object
-class BeAIMApplication : public BApplication 
+class BeAIMApplication : public BApplication
 {
 	public:
 		BeAIMApplication();
 		~BeAIMApplication();
 		virtual void MessageReceived( BMessage* message );
 		virtual bool QuitRequested();
-		virtual void AboutRequested(); 
+		virtual void AboutRequested();
 		bool InitCheck();
-		
+
 	private:
 
 		// these startup and shutdown for the entire app
@@ -38,7 +38,7 @@ class BeAIMApplication : public BApplication
 		BMessageRunner* noOpRunner;
 		BMessageRunner* typeRunner;
 		BMessageRunner* snacRunner;
-	
+
 		bool deskbarIconInstalled;
 		bool initialized;
 };

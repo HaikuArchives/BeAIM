@@ -18,18 +18,18 @@ ProfileEditorWindow::ProfileEditorWindow( BRect frame )
 	BRect aRect( Bounds() );
 	genView = new ProfileEditorView( aRect );
 	AddChild( genView );
-	
+
 	// load the profile
 	BString profile = prefs->Profile();
 	profile.ReplaceAll( "<br>", "\n" );
 	if( profile.Length() )
 		genView->textview->SetText( profile.String() );
 	genView->textview->MakeFocus(true);
-	
+
 	// prefs
 	enterIsNewline = prefs->ReadBool( "EnterInsertsNewline", false );
 	tabIsTab = prefs->ReadBool( "TabIsTab", false );
-	
+
 	// load the lang strings
 	RefreshLangStrings();
 }
@@ -58,11 +58,11 @@ void ProfileEditorWindow::MessageReceived(BMessage* message)
 	{
 		case B_OK:
 			Save();
-	
+
 		case B_CANCEL:
 			PostMessage( new BMessage(B_QUIT_REQUESTED) );
 			break;
-	
+
 		case BEAIM_RELOAD_PREF_SETTINGS:
 			enterIsNewline = prefs->ReadBool( "EnterInsertsNewline", false );
 			tabIsTab = prefs->ReadBool( "TabIsTab", false );
@@ -71,7 +71,7 @@ void ProfileEditorWindow::MessageReceived(BMessage* message)
 		case BEAIM_REFRESH_LANG_STRINGS:
 			RefreshLangStrings();
 			break;
-	
+
 		default:
 			BWindow::MessageReceived(message);
 	}
@@ -115,7 +115,7 @@ void ProfileEditorWindow::DispatchMessage( BMessage* msg, BHandler* handler ) {
 				}
 			}
 		}
-		
+
 		// handle the almighty tab key
 		else if( msg->HasString("bytes") && msg->FindString("bytes")[0] == B_TAB && genView->textview->IsFocus() ) {
 
@@ -125,13 +125,13 @@ void ProfileEditorWindow::DispatchMessage( BMessage* msg, BHandler* handler ) {
 				if( !(mods&B_COMMAND_KEY || mods&B_CONTROL_KEY || mods&B_MENU_KEY || mods&B_SHIFT_KEY) )
 					msg->ReplaceInt32( "modifiers", mods | B_COMMAND_KEY );
 			}
-			
+
 			else {
 				if( mods & B_SHIFT_KEY )
 					msg->ReplaceInt32( "modifiers", (mods | B_COMMAND_KEY) & ~B_SHIFT_KEY );
 			}
 		}
-		
+
 		else if( msg->HasString("bytes") && msg->FindString("bytes")[0] == B_ESCAPE ) {
 			uint32 mods = modifiers();
 			if( mods == 0 || mods == 32) {
@@ -153,11 +153,11 @@ void ProfileEditorWindow::RefreshLangStrings() {
 
 	// set the window title
 	SetTitle( Language.get("EDIT_PROFILE") );
-	
+
 	// set the label
 	genView->label->SetText( Language.get("PE_ENTER_PROFILE") );
 	genView->label->ResizeToPreferred();
-	
+
 	// relabel and move the buttons
 	genView->btnCancel->SetLabel( Language.get("CANCEL_LABEL") );
 	genView->btnCancel->ResizeToPreferred();
@@ -166,7 +166,7 @@ void ProfileEditorWindow::RefreshLangStrings() {
 	genView->btnSave->SetLabel( Language.get("SAVE_LABEL") );
 	genView->btnSave->ResizeToPreferred();
 	genView->btnSave->MoveTo( wholeWidth - genView->btnSave->Bounds().Width(), genView->btnSave->Frame().top );
-	
+
 }
 
 //=====================================================
@@ -175,7 +175,7 @@ ProfileEditorView::ProfileEditorView( BRect rect )
 	   	   : BView(rect, "generic_input_view", B_FOLLOW_ALL_SIDES, B_WILL_DRAW)
 {
 	SetViewColor( GetBeAIMColor(BC_NORMAL_GRAY) );
-	
+
 	// make the stringview
 	label = new BStringView( BRect(7,4,110,0), "", "Enter your profile:" );
 	label->SetFont(be_bold_font);
@@ -189,16 +189,16 @@ ProfileEditorView::ProfileEditorView( BRect rect )
 	// make the new textview
 	BRect textrect = textframe;
 	textrect.OffsetTo(B_ORIGIN);
-	textrect.InsetBy( 2.0, 2.0 );	
+	textrect.InsetBy( 2.0, 2.0 );
 	textview = new HTMLView( true, textframe, "text_view", textrect, B_FOLLOW_NONE, B_WILL_DRAW | B_NAVIGABLE | B_NAVIGABLE_JUMP );
 	textview->SetViewColor( GetBeAIMColor(BC_WHITE) );
 	//textview = new BTextView( textframe, "text_view", textrect, B_FOLLOW_NONE, B_WILL_DRAW | B_NAVIGABLE | B_NAVIGABLE_JUMP );
-	
-									 
+
+
 	// make the scrollview
 	AddChild(scroll = new BScrollView("text_scroll_view", textview,
 			B_FOLLOW_NONE, 0, false, true));
-				
+
 	// set attributes
 	textview->MakeEditable( true );
 	//textview->SetStylable( false );
@@ -208,12 +208,12 @@ ProfileEditorView::ProfileEditorView( BRect rect )
 	rgb_color black;
 	black.red = black.green = black.blue = 0;
 	chatFont.SetSize( 12.0 );
-	textview->SetFontAndColor( &chatFont, B_FONT_ALL, &black );	
+	textview->SetFontAndColor( &chatFont, B_FONT_ALL, &black );
 	textview->SelectAll();
-	
+
 	// make the new button
 	BRect buttonrect = BRect( 156, 145, 207, 0 );
-	btnSave = new BButton(buttonrect, "Save", "Save", new BMessage(B_OK),
+	btnSave = new BButton(buttonrect, "Save", "Save", new BMessage(M_OK),
 					B_FOLLOW_BOTTOM | B_FOLLOW_RIGHT, B_NAVIGABLE | B_NAVIGABLE_JUMP | B_WILL_DRAW );
 	btnSave->MakeDefault(true);
 	AddChild( btnSave );

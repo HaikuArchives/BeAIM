@@ -1,10 +1,14 @@
 NAME = BeAIM_IdleTime_Filter.so
+TARGET_DIR = ../BeAIM
 TYPE = SHARED
 SRCS = BeAIMIdleTimeFilter.cpp
-LIBS = be _APP_
+LIBS = be
 ifeq ($(DEBUG), 1)
 	DEBUGGER = TRUE
 endif
 WARNINGS = ALL
 
-include /boot/develop/etc/makefile-engine
+## Include the Makefile-Engine
+DEVEL_DIRECTORY := \
+	$(shell findpaths -r "makefile_engine" B_FIND_PATH_DEVELOP_DIRECTORY)
+include $(DEVEL_DIRECTORY)/etc/makefile-engine

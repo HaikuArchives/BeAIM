@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/time.h>
 #include "Say.h"
 #include "Globals.h"
 #include "NetManager.h"
@@ -78,7 +79,7 @@ int32 Netlet::ConnectThread() {
 
 	lock.Lock();
 	socketID = socket( AF_INET, SOCK_STREAM, 0 );
-	
+
 	// get the host/port of where we're really supposed to connect,
 	// based on the current proxy settings
 	owner->Lock();
@@ -93,16 +94,16 @@ int32 Netlet::ConnectThread() {
 		proxyAuthUser = owner->proxyAuthUser;
 		proxyAuthPass = owner->proxyAuthPass;
 	}
-	owner->Unlock();	
+	owner->Unlock();
 	lock.Unlock();
-	
+
 	printf( "initial connection: %s:%ld\n", conHost.String(), conPort );
 
 	struct sockaddr_in sa;
 	struct hostent *he;
-	in_addr ia;	
-	int s = sizeof(struct sockaddr_in);
-	
+	in_addr ia;
+	socklen_t s = sizeof(struct sockaddr_in);
+
 	if( !conHost.Length() ) {
 		lock.Lock();
 		conThread = -1;
@@ -157,12 +158,12 @@ int32 Netlet::ConnectThread() {
 	//   then we need to (possibly) authenticate ourselves and then attempt to make the proxy
 	//   connect to the server we wanted in the first place. But both HTTPS and SOCKS5 have a
 	//   few things that need to happen in between...
-	
+
 	// Attempt to connect via SOCKS5, and bail if the attempt fails
 	if( prelim && proxyMode == NPM_SOCKS5_PROXY )
 		if( !SOCKS5Connect() )
 			return 0;
-			
+
 	// Attempt to connect via SOCKS5, and bail if the attempt fails
 	else if( prelim && proxyMode == NPM_HTTPS_PROXY )
 		if( !HTTPSConnect() )
@@ -212,7 +213,7 @@ int32 Netlet::ConnectThread() {
 			lock.Unlock();
 		}
 	}
-	
+
 	lock.Lock();
 	conThread = -1;
 	lock.Unlock();
@@ -232,7 +233,7 @@ bool Netlet::SOCKS5Connect() {
 	Buf[1] = 2; // methods
 	Buf[2] = SOCKS5_AUTH_NONE;
 	Buf[3] = SOCKS5_AUTH_USER_PASS;
-	
+
 	// authentication info
 	BString proxyAuthUser = owner->proxyAuthUser;
 	BString proxyAuthPass = owner->proxyAuthPass;
@@ -240,7 +241,7 @@ bool Netlet::SOCKS5Connect() {
 	bool success = false;
 	int32 msgCode = NETLET_COULD_NOT_CONNECT;
 	BString errString;
-			
+
 	// No idea how to implement this.
 	// AuthReq[3] = SOCKS5_AUTH_GSSAPI;
 
@@ -266,17 +267,17 @@ bool Netlet::SOCKS5Connect() {
 						printf("[SOCKS5] User/Pass authentication needed.\n");
 						char *b = Buf;
 						*b++ = 1; // ver of sub-negotiation ??
-								
+
 						int NameLen = proxyAuthUser.Length();
 						*b++ = (char)NameLen;
 						strcpy(b, proxyAuthUser.String());
 						b += NameLen;
-	
+
 						int PassLen = proxyAuthPass.Length();
 						*b++ = (char)PassLen;
 						strcpy(b, proxyAuthPass.String());
 						b += PassLen;
-	
+
 						send( socketID, (void*)Buf, 3 + NameLen + PassLen, 0 );
 						if( recv(socketID, (void*)Buf, 2, 0) == 2 )
 						{
@@ -391,9 +392,9 @@ bool Netlet::SOCKS5Connect() {
 	{
 		errString = "SOCKS5: Authentication type read failed.";
 	}
-	
+
 	// if we couldn't connect to the final server for whatever reason, send out the failure message
-	if( !success ) {	
+	if( !success ) {
 		BMessage* resMessage = new BMessage(msgCode);
 		AddToMessage( resMessage, nid );
 		if( errString.Length() )
@@ -418,7 +419,7 @@ bool Netlet::HTTPSConnect() {
 	BString proxyAuthUser = owner->proxyAuthUser;
 	BString proxyAuthPass = owner->proxyAuthPass;
 	bool proxyAuthenticate = owner->authenticate;
-	
+
 	DataContainer sendStuff, recvStuff;
 	const int datSize = 2048;
 	BString userPassString, response;
@@ -429,7 +430,7 @@ bool Netlet::HTTPSConnect() {
 	fd_set fds;
 	bool again;
 	bool prelim = true;
-		
+
 	printf( "HTTPS proxy! yay!\n" );
 
 	// build the connect request string and send to the HTTPS server
@@ -439,7 +440,7 @@ bool Netlet::HTTPSConnect() {
 	sendStuff << "User-agent: ";
 	sendStuff << "BeAIM/" << (char*)BeAIMVersion(false).String();
 	sendStuff << char(0xD) << char(0xA);
-		
+
 	// HTTPS authentication involves tacking on some more fields, including
 	// the name:pass information (this has to be Base64 encoded)
 	if( proxyAuthenticate ) {
@@ -470,7 +471,7 @@ bool Netlet::HTTPSConnect() {
 
 		if( FD_ISSET(socketID, &fds) ) {
 			recvSize = recv(socketID, (void*)cdata, datSize, 0);
-			again = true;			
+			again = true;
 		}
 	} while( recvSize > 0 && again );
 
@@ -482,7 +483,7 @@ bool Netlet::HTTPSConnect() {
 		recvStuff << char('\0');
 	response = BString( recvStuff.c_ptr() );
 	prelim = false;
-		
+
 	// yank the HTTP status code
 	if( response.FindFirst(" ") != B_ERROR ) {
 		response.Remove(0, 1+response.FindFirst(" "));
@@ -491,7 +492,7 @@ bool Netlet::HTTPSConnect() {
 		// 200 means we connected OK, anything else is a Bad Thing
 		if( response == "200" )
 			prelim = true;
-				
+
 		// probably an authorization failure
 		else if( response == "403" || response == "407" || response == "401" )
 			resMessage = new BMessage(NETLET_PROXY_BAD_AUTH);
@@ -500,9 +501,9 @@ bool Netlet::HTTPSConnect() {
 		else if( response == "503" || response == "504" )
 			resMessage = new BMessage(NETLET_COULD_NOT_CONNECT);
 	}
-		
+
 	// if we couldn't connect to the final server for whatever reason, send out the failure message
-	if( !prelim ) {	
+	if( !prelim ) {
 		AddToMessage( resMessage, nid );
 		resMessage->AddBool( "netonly", true );
 		lock.Lock();
@@ -514,7 +515,7 @@ bool Netlet::HTTPSConnect() {
 		lock.Unlock();
 		return false;
 	}
-	
+
 	// must have gone OK... declare victory
 	return true;
 }
@@ -538,7 +539,7 @@ int32 Netlet::ReadThread() {
 	bool done = false;
 	ssize_t recvSize;
 	int selRes;
-	
+
 	tv.tv_sec = 0;
 	tv.tv_usec = 0;
 
@@ -546,24 +547,24 @@ int32 Netlet::ReadThread() {
 
 		// wait for data, read it, and send it out, repeat ad nauseum
 		while( (recvSize = recv(socketID, (void*)cdata, datSize, 0)) > 0 ) {
-		
+
 			// loop through and grab all the data on the socket
 			do {
 				again = false;
 				lock.Lock();
 				data << DataContainer(cdata,recvSize);
 				lock.Unlock();
-	
+
 				// do a select on the socket to see if there's any more data
 				// waiting to be read and stuck on to the current packet
 				FD_ZERO(&fds);
 				FD_SET(socketID, &fds);
 				selRes = select(32, &fds, NULL, NULL, &tv);
-				
+
 				// if there's any data waiting, try and grab it
 				if( FD_ISSET(socketID, &fds) ) {
 					recvSize = recv(socketID, (void*)cdata, datSize, 0);
-					again = true;			
+					again = true;
 				}
 
 			} while( recvSize > 0 && again );
@@ -668,7 +669,7 @@ nlID NetworkManager::MakeNetlet( int type ) {
 
 	netID.nid = netletIDPool++;
 	netID.type = type;
-	
+
 	Netlet* newNet = new Netlet;
 	newNet->owner = this;
 	newNet->nid = netID;
@@ -736,11 +737,11 @@ void NetworkManager::Send( nlID nid, DataContainer dtemp ) {
 void NetworkManager::Disconnect( nlID nid ) {
 
 	printf( "NetworkManager::Disconnect: %d\n", nid.nid );
-	
+
 	// don't try to disconnect an invalid netlet
 	if( nid.nid == -1 )
 		return;
-	
+
 	lock.Lock();
 	RemoveNetlet(nid);
 	lock.Unlock();
@@ -774,11 +775,11 @@ void NetworkManager::MessageReceived( BMessage* msg ) {
 	netletID.type = msg->FindInt32("netlet_type");
 
 	switch( msg->what ) {
-	
+
 		case NETLET_CONNECTED:
 			Connected( netletID );
 			break;
-		
+
 		case NETLET_COULD_NOT_CONNECT_TO_PROXY:
 		case NETLET_COULD_NOT_CONNECT:
 		case NETLET_PROXY_BAD_AUTH:
@@ -806,7 +807,7 @@ void NetworkManager::Shutdown() {
 
 	lock.Lock();
 	Netlet* templet;
-	
+
 	printf( "number of netlets to shut down: %ld\n", (int32)netlets.Count() );
 
 	// cycle through all the netlets and close them down
@@ -844,7 +845,7 @@ void NetworkManager::ShutdownNetlet( Netlet* templet ) {
 		kill_thread( templet->readThread );
 	templet->lock.Unlock();
 	delete templet;
-	
+
 	lock.Unlock();
 }
 
@@ -886,7 +887,7 @@ void NetworkManager::SetProxyInfo( netProxyMode mode, BString pHost, int32 pPort
 
 	// spit out some debug info
 	if( beaimDebug ) {
-	
+
 		printf( "SetProxyInfo called:\n" );
 		switch( mode ) {
 			case NPM_NO_PROXY:

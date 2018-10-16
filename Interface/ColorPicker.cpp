@@ -2,6 +2,7 @@
 #include <Box.h>
 #include <Button.h>
 #include <stdlib.h>
+#include "Globals.h"
 #include "StringView.h"
 #include "ColorPicker.h"
 #include "DLanguageClass.h"
@@ -17,7 +18,7 @@ ColorPickerWindow::ColorPickerWindow( BRect frame, const char* title, int id, BW
 	BRect aRect( Bounds() );
 	genView = new ColorPickerView( aRect );
 	AddChild( genView );
-	
+
 	// other stuff
 	SetFeel( B_MODAL_SUBSET_WINDOW_FEEL );
 	owner = own;
@@ -46,7 +47,7 @@ void ColorPickerWindow::MessageReceived(BMessage* message)
 		case BEAIM_CP_COLOR_CHANGED:
 			genView->colPick->SetColor( genView->picker->ValueAsColor() );
 			break;
-			
+
 		case B_OK:
 			if( owner ) {
 				rgb_color color = genView->picker->ValueAsColor();
@@ -57,7 +58,7 @@ void ColorPickerWindow::MessageReceived(BMessage* message)
 			}
 			PostMessage( new BMessage(B_QUIT_REQUESTED) );
 			break;
-			
+
 		default:
 			BWindow::MessageReceived(message);
 	}
@@ -74,7 +75,7 @@ void ColorPickerWindow::DispatchMessage( BMessage* msg, BHandler* handler ) {
 			PostMessage( new BMessage(B_QUIT_REQUESTED) );
 			return;
 		}
-	
+
 	// our work here is done... dispatch normally
 	BWindow::DispatchMessage( msg, handler );
 }
@@ -93,21 +94,21 @@ ColorPickerView::ColorPickerView( BRect rect )
 	   	   : BView(rect, "generic_input_view", B_FOLLOW_ALL_SIDES, B_WILL_DRAW)
 {
 	SetViewColor( 216, 216, 216 );
-	
+
 	picker = new BColorControl( BPoint(7,7), B_CELLS_32x8, 7, "colorpicker", new BMessage(BEAIM_CP_COLOR_CHANGED) );
 	AddChild( picker );
 
 	// Set up the view rectangles
 	BRect textframe = BRect( 7, 23, 265, 136 );
 	textframe.right -= B_V_SCROLL_BAR_WIDTH;
-	
+
 	// make the colorview
 	colPick = new ColorView( BRect( 8, 75, 38, 103 ), -1 );
 	AddChild( colPick );
 
 	// make the new button
 	BRect buttonrect = BRect( 195, 79, 245, 0 );
-	btnSave = new BButton(buttonrect, "save", Language.get("SAVE_LABEL"), new BMessage(B_OK), B_FOLLOW_BOTTOM | B_FOLLOW_RIGHT, B_NAVIGABLE | B_NAVIGABLE_JUMP | B_WILL_DRAW );
+	btnSave = new BButton(buttonrect, "save", Language.get("SAVE_LABEL"), new BMessage(M_OK), B_FOLLOW_BOTTOM | B_FOLLOW_RIGHT, B_NAVIGABLE | B_NAVIGABLE_JUMP | B_WILL_DRAW );
 	btnSave->ResizeToPreferred();
 	btnSave->MakeDefault(true);
 	AddChild( btnSave );
@@ -115,7 +116,7 @@ ColorPickerView::ColorPickerView( BRect rect )
 	btnCancel = new BButton(buttonrect, "cancel", Language.get("CANCEL_LABEL"), new BMessage(B_QUIT_REQUESTED), B_FOLLOW_BOTTOM | B_FOLLOW_RIGHT, B_NAVIGABLE | B_WILL_DRAW);
 	btnCancel->ResizeToPreferred();
 	AddChild( btnCancel );
-	
+
 	btnCancel->MoveTo( Bounds().Width() - btnCancel->Bounds().Width() - 7, btnCancel->Frame().top );
 	btnSave->MoveTo( btnCancel->Frame().left - btnSave->Bounds().Width() - 7, btnSave->Frame().top );
 }

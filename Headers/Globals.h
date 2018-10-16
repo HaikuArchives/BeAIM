@@ -23,4 +23,6 @@ extern char AppFileName[1024];
 extern bool beaimDebug;
 extern bool beaimBeta;
 
+#define M_OK (uint32)B_OK
+
 #endif
