@@ -10,7 +10,7 @@
 #include <Window.h>
 #include <GraphicsDefs.h>
 
-MakSplitterView::MakSplitterView (BRect pos,BView *lu,BView *rd,bool orientation,uint32 rezmode,rgb_color col=Mak_BeBackgroundGrey)
+MakSplitterView::MakSplitterView (BRect pos,BView *lu,BView *rd,bool orientation,uint32 rezmode,rgb_color col)
 				:BView(pos,NULL,rezmode,B_WILL_DRAW|B_FRAME_EVENTS)
 {
 	SetViewColor(col);
@@ -65,7 +65,7 @@ void MakSplitterView::MouseMoved(BPoint p,uint32 transit,const BMessage *msg)
 void MakSplitterView::MoveViews(BPoint p)
 {
 	BPoint distance(0,0);
-	
+
 	if (h_or_v)
 	{
 		distance.x=p.x-oldpoint.x;
@@ -73,26 +73,26 @@ void MakSplitterView::MoveViews(BPoint p)
 			distance.x=lui->Frame().left-Frame().left;
 		if (rdi->Frame().left+distance.x>rdi->Frame().right)
 			distance.x=rdi->Frame().right-Frame().right;
-		
+
 		distance.x=distance.x/4;	//This stops flicker
-		
+
 		lui->ResizeBy(distance.x,0);
 		rdi->MoveBy(distance.x,0);
 		rdi->ResizeBy(-distance.x,0);
 	}
-	else 
+	else
 	{
 		distance.y=p.y-oldpoint.y;
 		if (lui->Frame().bottom+distance.y<lui->Frame().top)
 			distance.y=lui->Frame().top-Frame().top;
 		if (rdi->Frame().top+distance.y>rdi->Frame().bottom)
 			distance.y=rdi->Frame().bottom-Frame().bottom;
-			
+
 		distance.y=distance.y/4;  	//This stops flicker
-		
+
 		lui->ResizeBy(0,distance.y);
 		rdi->MoveBy(0,distance.y);
-		rdi->ResizeBy(0,-distance.y);	
+		rdi->ResizeBy(0,-distance.y);
 	}
 	MoveBy(distance.x,distance.y);
 }

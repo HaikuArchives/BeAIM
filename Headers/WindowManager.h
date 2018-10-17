@@ -4,6 +4,7 @@
 #include <Window.h>
 #include <Message.h>
 #include <Locker.h>
+#include <FilePanel.h>
 #include <Alert.h>
 #include "GenList.h"
 #include "constants.h"
@@ -64,12 +65,12 @@ class WindowManager {
 
 		void Cleanup( bool full=true );
 		void Clear();
-		
+
 		void OpenBuddyList( BPoint* point = NULL );
 		void OpenSignOnWindow( BPoint* point = NULL );
 		void CloseSignOnWindow( BPoint* point = NULL );
 		void MakeDataSenderWindow();
-		
+
 		BWindow* GetBuddyList();
 		BWindow* OpenUserWindow( BMessage* message );
 		void UserWindowOpened( BMessage* message );
@@ -77,7 +78,7 @@ class WindowManager {
 		void SwitchUserWindow( BMessage* message );
 		void ForwardIncomingMessage( BMessage* message );
 		void BroadcastMessage( BMessage* message, bool toApp = false );
-		
+
 		void OpenSingleWindow( BMessage* msg, int32 whichWindow = 0 );
 		void CloseSingleWindow( BMessage* msg );
 		void SingleWindowClosed( BMessage* msg );
@@ -87,24 +88,24 @@ class WindowManager {
 		void SendBuddyListMessage( BMessage* message );
 		void SendSignOnMessage( BMessage* message );
 		void MakeAddBuddyWindow( AIMUser, BWindow*, bool commitNow, BString group="" );
-		
+
 		void MakeDialogFrame( BRect&, BPoint );
 		void MakeDialogFrame( BRect&, BWindow* );
 		void CenterFrame( BRect& );
-		
+
 		void ToggleHidden( bool forceShow );
-		
+
 		void SetWindowPos( winPosRect& );
 		bool GetNextWindowPos( winPosRect&, bool );
 		void ClearWindowPositions();
 		void CloseUserWindows( bool all=true );
 		void CloseSingleWindows();
-		
+
 		void OpenTranscriptSavePanel( AIMUser user, BWindow* target );
-		
+
 		void OpenInputWindow( char* title, char* label, BMessage* = NULL, BWindow* window = NULL,
 							  char* initial = NULL, int maxLen = 0, bool toApp = false, char* fname = "value" );
-							  
+
 		void ShowMessage( BString message, alert_type = B_INFO_ALERT, BString closeString = "--[iOK]--", int32 sound = WS_BEEP, bool async = true );
 
 	private:
@@ -116,10 +117,10 @@ class WindowManager {
 		BWindow* MakeInfoWindow( AIMUser userName, BWindow* posWindow = NULL );
 		void LoadSingleWindowStuff();
 		int FindSingleWindow( int type );
-	
+
 		GenList<winPosRect> winPositions;
 		GenList<singleWindowDefType> singleWindows;
-	
+
 		BRect IMWindowRect;
 		GenList<IMWindowItem> IMWindows;
 		LessAnnoyingWindow* bList;

@@ -1,12 +1,14 @@
 //spaces in names
 #include <storage/Path.h>
 #include "AimBuddyConv.h"
-#include <iostream.h>
+#include <iostream>
 #include "string.h"
-#include <fstream.h>
+#include <fstream>
 #include <stdio.h>
 #include <ctype.h>
 #include "Say.h"
+
+using namespace std;
 
 //-----------------------------------------------------
 // The BLT importer stuff
@@ -14,7 +16,7 @@
 void IgnoreChunk( FILE* file ) {
 	char c;
 	int parStack = 0;
-	
+
 	while( (c=fgetc(file)) != EOF ) {
 		if( c == '{' )
 			++parStack;
@@ -35,11 +37,11 @@ void ReadGroupChunk( FILE* file, group* &groopy ) {
 	while( true )
 	{
 		pos = 0;
-	
+
 		// seek up to the first letter
 		while( (c=fgetc(file)) != EOF && c != '}' ) {
 			if( isalpha(c) || c == '"' )
-				break;	
+				break;
 		}
 		if( isalnum(c) )
 			fseek( file, -1, SEEK_CUR );
@@ -49,7 +51,7 @@ void ReadGroupChunk( FILE* file, group* &groopy ) {
 		// read the screen name
 		while( (c=fgetc(file)) != EOF && (c == ' ' || isalnum(c)) )
 			if( pos < MAX_STR-1 )
-				screenName[pos++] = c;	
+				screenName[pos++] = c;
 		screenName[pos++] = '\0';
 
 		if (groopy->scrnname==NULL)
@@ -64,10 +66,10 @@ void ReadGroupChunk( FILE* file, group* &groopy ) {
 			tempperson = tempperson->next;
 			strcpy( tempperson->name, screenName );
 		}
-	}	
-	
+	}
+
 	int parStack = 0;
-	
+
 	while( (c=fgetc(file)) != EOF ) {
 		if( c == '{' )
 			++parStack;
@@ -90,7 +92,7 @@ bool GetChunkName( FILE* file, char* chunkName, bool& hasChunk ) {
 	else
 		return false;
 
-	// get the category name	
+	// get the category name
 	while( (c=fgetc(file)) != EOF && isprint(c) && c != ' ' )
 		if( pos < MAX_STR-1 )
 			chunkName[pos++] = c;
@@ -112,7 +114,7 @@ void ReadBuddyChunk( FILE* file, group* &list ) {
 	char chunkName[MAX_STR];
 	group* tempgroup=NULL;
 	bool hasChunk;
-	
+
 	while( GetChunkName( file, chunkName, hasChunk ) ) {
 		if( hasChunk ){
 			if( strcmp(chunkName,"list") == 0 )
@@ -144,7 +146,7 @@ void ReadBuddyChunk( FILE* file, group* &list ) {
 void ReadBLTFile( FILE* file, group* &list ) {
 	char chunkName[MAX_STR];
 	bool hasChunk;
-	
+
 	while( GetChunkName( file, chunkName, hasChunk ) ) {
 		if( hasChunk ) {
 			if( strcmp(chunkName, "Buddy") == 0 )
@@ -366,7 +368,7 @@ void ImportAIMList( entry_ref& ref, group*& list, int type ) {
 	BEntry entry(&ref);
 	entry.GetPath(&path);
 	pathski = path.Path();
-	
+
 	// sanity check
 	if( !entry.Exists() )
 		return;
@@ -375,17 +377,17 @@ void ImportAIMList( entry_ref& ref, group*& list, int type ) {
 	if( type == IMPORT_TYPE_BEAIM1X ) {
 		input.open( pathski.String() );
 		ReadBe(input, list);
-		input.close();		
+		input.close();
 	}
 
-	// import the GAIM lists		
+	// import the GAIM lists
 	else if( type == IMPORT_TYPE_GAIM ) {
 		input.open( pathski.String() );
 		ReadGAIM(input, list);
-		input.close();		
+		input.close();
 	}
-	
-	// import the GAIM lists		
+
+	// import the GAIM lists
 	else if( type == IMPORT_TYPE_BLT ) {
 		FILE* file = fopen( pathski.String(), "r" );
 		ReadBLTFile( file, list );

@@ -9,12 +9,12 @@
 
 
 // String version
-inline void Say( char* string ) {
+inline void Say( const char* string ) {
 	(new BAlert("", string, "OK"))->Go();
 }
 
 // String with title version
-inline void Say( char* title, char* string ) {
+inline void Say( const char* title, char* string ) {
 	char* Msg = new char[strlen(title) + strlen(string) + 4];
 	sprintf( Msg, "%s: %s", title, string );
 	Say( Msg );
@@ -22,7 +22,7 @@ inline void Say( char* title, char* string ) {
 }
 
 // Int with title version
-inline void Say( char* title, int what ) {
+inline void Say( const char* title, int what ) {
 	char* Msg = new char[strlen(title) + 25];
 	sprintf( Msg, "%s: %d", title, what );
 	Say( Msg );
@@ -52,7 +52,7 @@ inline void Say( int32 what ) {
 }
 
 // Float with title version
-inline void Say( char* title, float what ) {
+inline void Say( const char* title, float what ) {
 	char* Msg = new char[strlen(title) + 25];
 	sprintf( Msg, "%s: %f", title, what );
 	Say( Msg );
@@ -75,14 +75,14 @@ inline void Say( char* title, char what ) {
 }
 
 // Char without title version
-inline void Say( char what ) {
+inline void Say( const char what ) {
 	char Msg[25];
 	sprintf( Msg, "%c", what );
 	Say( Msg );
 }
 
 // Bool with title version
-inline void Say( char* title, bool what ) {
+inline void Say( const char* title, bool what ) {
 	char* Msg = new char[strlen(title) + 25];
 	sprintf( Msg, "%s: %s", title, what ? "true" : "false" );
 	Say( Msg );
@@ -95,7 +95,7 @@ inline void Say( bool what ) {
 }
 
 // unsigned int with title version
-inline void Say( char* title, unsigned int what ) {
+inline void Say( const char* title, unsigned int what ) {
 	char* Msg = new char[strlen(title) + 25];
 	sprintf( Msg, "%s: %u", title, what );
 	Say( Msg );
@@ -117,7 +117,7 @@ inline void Say( BRect what ) {
 }
 
 // BRect with title version
-inline void Say( char* title, BRect what ) {
+inline void Say( const char* title, BRect what ) {
 	char Msg[25];
 	sprintf( Msg, "%s: {%f, %f, %f, %f}", title, what.left, what.top, what.right, what.bottom );
 	Say( Msg );

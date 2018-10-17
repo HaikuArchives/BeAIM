@@ -4,6 +4,7 @@
 #include <Window.h>
 #include <TabView.h>
 #include <MenuItem.h>
+#include <PopUpMenu.h>
 #include <OutlineListView.h>
 #include <TextView.h>
 #include <PictureButton.h>
@@ -18,12 +19,12 @@
 
 //=====================================================
 
-class BLBubbleWindow : public BWindow 
+class BLBubbleWindow : public BWindow
 {
 	public:
 		BLBubbleWindow();
 		~BLBubbleWindow();
-		
+
 		bool IsBeingShown();
 		void SetBeingShown( bool, BPoint* = NULL );
 		void AddDisplayString( BString );
@@ -31,7 +32,7 @@ class BLBubbleWindow : public BWindow
 		void GetMouseInfo( BPoint&, ulong& );
 		void GetDimensions( float&, float& );
 		void SetNumBoldChars( int );
-		
+
 	private:
 		BTextView* textview;
 		BString displayString;
@@ -44,8 +45,8 @@ class BLBubbleWindow : public BWindow
 //=====================================================
 
 class BLGroupItem : public BListItem
-{ 
-	public: 
+{
+	public:
 		BLGroupItem( BString grp, BFont* font, bool off = false );
 		virtual void DrawItem( BView *owner, BRect frame, bool complete = false );
 		BString Group();
@@ -58,7 +59,7 @@ class BLGroupItem : public BListItem
 		bool IsOfflineGroup()
 		{ return isOffline; };
 
-	private: 
+	private:
 		BFont* ourFont;
 		BString groupName;
 		BString drawString;
@@ -69,8 +70,8 @@ class BLGroupItem : public BListItem
 //=====================================================
 
 class BLMainItem : public BListItem
-{ 
-	public: 
+{
+	public:
 		BLMainItem( AIMUser u, BFont* font );
 		virtual void DrawItem( BView *owner, BRect frame, bool complete = false );
 		AIMUser GetUser();
@@ -79,15 +80,15 @@ class BLMainItem : public BListItem
 		int32 WarningLevel();
 		void SetWarningLevel( int32 );
 
-	private: 
+	private:
 		void MakeDisplay();
-	
+
 		BFont* ourFont;
 		AIMUser user;
 		int status;
 		int32 warningLevel;
 		BString display;
-	
+
 		static BBitmap* awayIcon;
 		static BBitmap* alertIcon;
 		static BBitmap* blockIcon;
@@ -103,7 +104,7 @@ class BuddyListView : public BOutlineListView {
 		BuddyListView( BRect );
 		~BuddyListView();
 		virtual void MouseDown( BPoint cursor );
-		
+
 	private:
 		BPopUpMenu* userPopup;
 };
@@ -117,7 +118,7 @@ class BuddyListMainView : public BView
 	public:
 		BuddyListMainView( BRect rect );
 		virtual void Draw( BRect );
-		
+
 	private:
 		BuddyListView* buddylistview;
 		BScrollView* scroller;
@@ -125,29 +126,29 @@ class BuddyListMainView : public BView
 
 //=====================================================
 
-class BuddyListWindow : public LessAnnoyingWindow 
+class BuddyListWindow : public LessAnnoyingWindow
 {
 	public:
-		BuddyListWindow(BRect frame); 
+		BuddyListWindow(BRect frame);
 		~BuddyListWindow();
-		
+
 		virtual	bool QuitRequested();
 		virtual void MessageReceived( BMessage *message );
 		virtual void WorkspaceActivated( int32 workspace, bool active );
-		
+
 		void Populate();
 		void LoadGroups();
 		void Clear();
-		
+
 		void ShowBubble( BPoint, bool, bool forceClose=false );
 
 	private:
-	
+
 		void SetOfflineGroupVisibility( bool );
 		void RefreshGroupCounts( bool force );
-		
+
 		void RefreshLangStrings();
-		
+
 		void Verify();
 
 		BLMainItem* FindBuddy( AIMUser user, BString group, bool checkOffline );
@@ -170,7 +171,7 @@ class BuddyListWindow : public LessAnnoyingWindow
 		void LoadAwayMessages();
 		void GoAway( BMessage* msg );
 		void Invoked();
-		
+
 		// bubble stuff
 		void FormatBubble( AIMUser user );
 		static int32 StartBubbleWatcher(void *arg);
@@ -178,7 +179,7 @@ class BuddyListWindow : public LessAnnoyingWindow
 		thread_id bubbleThread;
 		BLBubbleWindow* bubblewin;
 		AIMUser lastUserOver;
-		
+
 		GenList<BMenuItem*> awayMenuItems;
 
 		BMenuBar *menubar;
@@ -188,13 +189,13 @@ class BuddyListWindow : public LessAnnoyingWindow
 		NameStatusView* myName;
 		BMenu* statMenu;
 		BMenu *peopleMenu;
-		BMenu *beMenu;	
+		BMenu *beMenu;
 		BuddyListMainView* genView;
 		BuddyListView* budView;
 		BLGroupItem* offlineGroup;
 		bool showOfflineGroup;
 		bool forceCountMode;
-		
+
 		BFont ownerFont;
 };
 

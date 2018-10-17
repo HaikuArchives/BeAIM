@@ -22,37 +22,37 @@ static char table64[]= "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123
 
 //-----------------------------------------------------
 
-void GetBitmapFromResources( BBitmap*& themap, int32 resid, char *resfile ) 
+void GetBitmapFromResources( BBitmap*& themap, int32 resid, char *resfile )
 {
-	BResources res; 
-   	status_t err; 
-   	
+	BResources res;
+   	status_t err;
+
    	size_t  reslength;
    	const char * resbuf;
    	BMessage archive;
-   	
+
    	if( !resfile )
    		resfile = AppFileName;
 
 	// 	Open resource file
-	BFile file( resfile, B_READ_ONLY );  
+	BFile file( resfile, B_READ_ONLY );
 
 	// if the file loads OK, that is
    	if ( (file.InitCheck() || (err = res.SetTo(&file)) ) == B_NO_ERROR )  {
 
 		// Find and load resource
    		resbuf = (char*)res.FindResource( B_RAW_TYPE, resid, &reslength );
-   							
+
    		if( resbuf ) {
-   		
+
 			// Inflate and unarchive BBitmap
-	   		archive.Unflatten( resbuf );	
-   			themap = new BBitmap( &archive );	
+	   		archive.Unflatten( resbuf );
+   			themap = new BBitmap( &archive );
 
 		} else {
 	   		(new BAlert("", "Error while reading resource from file.", "OK"))->Go();
 		}
-		    		
+
    	} else {	// Error
    		(new BAlert("", "Error opening resource file.", "OK"))->Go();
    		exit(1);
@@ -61,26 +61,26 @@ void GetBitmapFromResources( BBitmap*& themap, int32 resid, char *resfile )
 
 //-----------------------------------------------------
 
-void MakeButtonPicture( BPicture*& pic, BView* view, int32 resid, char *resfile ) 
+void MakeButtonPicture( BPicture*& pic, BView* view, int32 resid, char *resfile )
 {
    	if( !resfile )
    		resfile = AppFileName;
 
 	BBitmap* bitmap = NULL;
 	GetBitmapFromResources( bitmap, resid, resfile );
-	
+
 	//tempview for creating the picture
 	BView *tempView = new BView( BRect(0,0,50,50), "temp", B_FOLLOW_NONE, B_WILL_DRAW );
-	view->AddChild(tempView);	
-	
+	view->AddChild(tempView);
+
 	// draw the bitmap into the BPicture
-	tempView->BeginPicture(new BPicture); 
+	tempView->BeginPicture(new BPicture);
 	tempView->DrawBitmap(bitmap);
 	pic = tempView->EndPicture();
 
 	//get rid of tempview
 	view->RemoveChild(tempView);
-	delete tempView;	
+	delete tempView;
 	delete bitmap;
 }
 
@@ -107,11 +107,11 @@ unsigned char HexcharToInt( char hex )
 
 	// is lower-case a-f
 	else if ( (hex >= 0x61) && (hex <= 0x66) )
-		return (unsigned char)((hex - 0x61) + 0xa);		
+		return (unsigned char)((hex - 0x61) + 0xa);
 
 	// is numeric digit
 	else if ( (hex >= 0x30) && (hex <= 0x39) )
-		return (unsigned char)(hex - 0x30);				
+		return (unsigned char)(hex - 0x30);
 	else
 		return (unsigned char)(0);
 }
@@ -134,7 +134,7 @@ BString ColorToString( rgb_color color ) {
 //-----------------------------------------------------
 
 bool isValidColor( BString str ) {
-	
+
 	char c;
 	if( str.Length() != 7 )
 		return false;
@@ -168,7 +168,7 @@ BString BeAIMAppSig() {
 
 //-----------------------------------------------------
 
-BString BeAIMVersion( bool fullString = true ) {
+BString BeAIMVersion( bool fullString ) {
 	if( fullString ) {
 		BString verString = Language.get( "AB_VERSION_STRING" );
 		verString.ReplaceAll( "%VER", BEAIM_VERSION );
@@ -184,7 +184,7 @@ rgb_color GetBeAIMColor( beaimColor color ) {
 	rgb_color ret;
 
 	switch( color ) {
-	
+
 		case BC_NORMAL_GRAY: {
 			if( beaimDebug ) {
 				ret.red = 180;
@@ -195,7 +195,7 @@ rgb_color GetBeAIMColor( beaimColor color ) {
 			}
 			break;
 		}
-		
+
 		case BC_REALLY_LIGHT_GRAY: {
 			if( beaimDebug ) {
 				ret.red = 235;
@@ -219,13 +219,13 @@ rgb_color GetBeAIMColor( beaimColor color ) {
 		}
 
 		case BC_SELECTION_COLOR: {
-		
+
 			break;
 		}
 
 
 		case BC_GRAY_TEXT: {
-		
+
 			break;
 		}
 	}
@@ -291,14 +291,14 @@ void MakeElapsedTimeString( int32 elapsed, char theTime[100] ) {
 	int32 temp, temp2;
 
 	theTime[0] = '\0';
-	
+
 	// calculate days, hours, and minutes
 	temp = temp2 = int32(elapsed / 86400);
 	if( temp ) {
 		if( temp == 1 )
 			sprintf( theTime, "%ld %s, ", temp, Language.get("DT_DAY") );
 		else
-			sprintf( theTime, "%ld %s, ", temp, Language.get("DT_DAYS") );		
+			sprintf( theTime, "%ld %s, ", temp, Language.get("DT_DAYS") );
 		elapsed -= (temp*86400);
 	}
 	temp = int32(elapsed / 3600);
@@ -349,10 +349,10 @@ BString ConvertToUTF8( BString text, uint32 enc ) {
 	int32 srcLen = text.Length();
 	int32 destLen = text.Length()*2+1;
 	int32 state = 0;
-	
+
 	if( enc == DEFAULT_ENCODING_CONSTANT )
 		enc = (uint32)prefs->ReadInt32("DefaultEncoding", B_MS_WINDOWS_CONVERSION);
-	
+
 	char* tmpMessage = new char[destLen];
 	convert_to_utf8( enc, text.String(), &srcLen, tmpMessage, &destLen, &state );
 	tmpMessage[destLen] = '\0';

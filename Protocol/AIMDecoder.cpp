@@ -2,7 +2,8 @@
 #include "AIMConstants.h"
 #include "UserManager.h"
 #include "Globals.h"
-#include "rsamd5.h"
+#define _BSD_SOURCE
+#include <sys/md5.h>
 
 #define AIM_STRING "AOL Instant Messenger (SM)"
 
@@ -14,28 +15,28 @@ void AIMNetManager::DecodeSNACPacket( SNAC_Object& snac ) {
 
 	// send each genus to the appropriate sub-handlers
 	switch( snac.genus ) {
-		
+
 		case GENERIC_SERVICE_GENUS:
 			DecodeGenericServiceSNAC( snac );
 			break;
-			
+
 		case LOCATION_SERVICE_GENUS:
 		case USER_LOOKUP_GENUS:
 			DecodeUserSNAC( snac );
 			break;
-		
+
 		case BUDDY_LIST_GENUS:
 			DecodeBuddyListSNAC( snac );
 			break;
-			
+
 		case BOS_SPECIFIC_GENUS:
 			DecodeBOSSNAC( snac );
 			break;
-			
+
 		case ADMINISTRATIVE_GENUS:
 			DecodeAdministrativeSNAC( snac );
 			break;
-			
+
 		case MESSAGING_GENUS:
 			DecodeMessagingSNAC( snac );
 			break;
@@ -53,7 +54,7 @@ void AIMNetManager::DecodeSNACPacket( SNAC_Object& snac ) {
 		case MD5LOGIN_GENUS:
 			DecodeMD5LoginSNAC(snac);
 			break;
-			
+
 		default:
 			printf( "**********************\nWhoa... Unknown GENUS!  Gen: %X	Spc: %X\n**********************", snac.genus, snac.specie );
 	}
@@ -66,63 +67,63 @@ void AIMNetManager::DecodeUserSNAC( SNAC_Object& snac ) {
 
 	// snac from the location service
 	if( snac.genus == LOCATION_SERVICE_GENUS ) {
-	
+
 		switch( snac.specie ) {
-	
+
 			// error... user not online
 			case 0x01:
 				printf( "LOCATION_SERVICE_GENUS error! (uh-oh)\n" );
 				FailedPersonInfo( snac );
 				break;
-				
+
 			// rights response
 			case 0x03:
 				printf( "location rights response received\n" );
 				break;
-				
+
 			// user information
 			case 0x06:
 				printf( "user information received\n" );
 				ReceivePersonInfo( snac );
 				break;
-				
+
 			// watcher notification (?)
 			case 0x08:
 				printf( "watcher notification (?) received\n" );
 				break;
-				
+
 			default:
 				printf( "**********************\nUnknown Packet!  Gen: %X	Spc: %X\n**********************", snac.genus, snac.specie );
-				
+
 		}
 	}
-	
+
 	// snac from the user lookup service
 	if( snac.genus == USER_LOOKUP_GENUS ) {
-	
+
 		switch( snac.specie ) {
-	
+
 			// error
 			case 0x01:
 				printf( "USER_LOOKUP_GENUS error! (usually: search failed)\n" );
 				ReceiveFailedSearch( snac );
 				break;
-				
+
 			// response to search by email address
 			case 0x03:
 				printf( "response to search by email address\n" );
 				ReceiveSearchResults( snac );
 				break;
-				
+
 			default:
 				printf( "**********************\nUnknown Packet!  Gen: %X	Spc: %X\n**********************", snac.genus, snac.specie );
-				
+
 		}
 	}
-	
+
 }
 
-//-----------------------------------------------------	
+//-----------------------------------------------------
 
 void AIMNetManager::DecodeMD5LoginSNAC (SNAC_Object & snac)
 {
@@ -145,17 +146,17 @@ void AIMNetManager::DecodeMD5LoginSNAC (SNAC_Object & snac)
 			memcpy(key, snac.data.getrange(2, len).c_ptr(), len);
 
 			printf("sweet!  auth time!  (key length = %d)\n", len);
-			
-			MD5Init(&context);
-			MD5Update(&context, loginPassword.String(), loginPassword.Length());
-			MD5Final(phash, &context);
 
 			MD5Init(&context);
-			MD5Update(&context, key, len);
-			MD5Update(&context, phash, 16);
-			MD5Update(&context, AIM_STRING, strlen(AIM_STRING));
-			MD5Final(ahash, &context);
-			
+			MD5Update(&context, (const unsigned char*)loginPassword.String(), loginPassword.Length());
+			MD5Final((unsigned char*)phash, &context);
+
+			MD5Init(&context);
+			MD5Update(&context, (const unsigned char*)key, len);
+			MD5Update(&context, (const unsigned char*)phash, 16);
+			MD5Update(&context, (const unsigned char*)AIM_STRING, strlen(AIM_STRING));
+			MD5Final((unsigned char*)ahash, &context);
+
 			delete key;
 
 			auth.Update(0x17, 0x02, 0, 0, 0x1927);
@@ -187,9 +188,9 @@ void AIMNetManager::DecodeMD5LoginSNAC (SNAC_Object & snac)
 			printf("WTF, mate?  What is SNAC 0x0017/0x%04X?\n", snac.specie);
 	}
 }
-		
-//-----------------------------------------------------	
-		
+
+//-----------------------------------------------------
+
 void AIMNetManager::DecodeBuddyListSNAC( SNAC_Object& snac ) {
 
 	switch( snac.specie ) {
@@ -203,34 +204,34 @@ void AIMNetManager::DecodeBuddyListSNAC( SNAC_Object& snac ) {
 		case 0x03:
 			printf( "buddy list rights response\n" );
 			break;
-			
+
 		// watcher list (?) response
 		case 0x07:
 			printf( "Watcher list response\n" );
 			break;
-			
+
 		// watcher (?) notification
 		case 0x09:
 			printf( "Watcher (?) notification\n" );
 			break;
-			
+
 		// reject (?) notification
 		case 0x0A:
 			printf( "reject (?) notification\n" );
 			break;
-			
+
 		// oncoming buddy/buddy refresh
 		case 0x0B:
 			printf( "oncoming buddy\n" );
 			BuddyOnline(snac);
 			break;
-			
+
 		// offgoing buddy
 		case 0x0C:
 			printf( "offgoing buddy\n" );
 			BuddyOffline(snac);
 			break;
-			
+
 		default:
 			printf( "**********************\nUnknown Packet!  Gen: %X	Spc: %X\n**********************", snac.genus, snac.specie );
 	}
@@ -250,20 +251,20 @@ void AIMNetManager::DecodeMessagingSNAC( SNAC_Object& snac ) {
 			printf( "MESSAGING_GENUS error! (uh-oh)\n" );
 			FailedMessage(snac);
 			break;
-			
+
 		// ICBM parameter info response
 		case 0x05:
 			printf( "ICBM parameter info response\n" );
 			preLoginPhase = 11;
 			DoLogin(NULL);
 			break;
-			
+
 		// incoming IM
 		case 0x07:
 			printf( "incoming IM!\n" );
 			ReceiveMessage(snac);
 			break;
-			
+
 		// response to a warning-request
 		case 0x09:
 			printf( "response to a warning-request\n" );
@@ -272,13 +273,13 @@ void AIMNetManager::DecodeMessagingSNAC( SNAC_Object& snac ) {
 		// missed messages
 		case 0x0A:
 			MishMashWarningFunction( 2, snac );
-			break;			
+			break;
 
 		// client error (?)
 		case 0x0B:
 			printf( "client error... huh?\n" );
 			break;
-			
+
 		// host acknowledgement
 		case 0x0C:
 			printf( "Host ack...\n" );
@@ -296,14 +297,14 @@ void AIMNetManager::DecodeMessagingSNAC( SNAC_Object& snac ) {
 			typeMsg->AddInt32("wtype", USER_OTHER_INFO);
 			PostAppMessage(typeMsg);
 			break;
-			
+
 		default:
-			printf( "**********************\nUnknown Packet!  Gen: %X	Spc: %X\n**********************", snac.genus, snac.specie );			
+			printf( "**********************\nUnknown Packet!  Gen: %X	Spc: %X\n**********************", snac.genus, snac.specie );
 	}
 }
-		
+
 //-----------------------------------------------------
-		
+
 void AIMNetManager::DecodeAdministrativeSNAC( SNAC_Object& snac ) {
 
 	switch( snac.specie ) {
@@ -312,32 +313,32 @@ void AIMNetManager::DecodeAdministrativeSNAC( SNAC_Object& snac ) {
 		case 0x01:
 			printf( "ADMINISTRATIVE_GENUS error! (uh-oh)\n" );
 			break;
-			
+
 		// information reply
 		case 0x03:
 			printf( "admin information reply\n" );
 			break;
-		
+
 		// change information reply
 		case 0x05:
 			printf( "admin change information reply\n" );
 			break;
-			
+
 		// account confirm reply
 		case 0x07:
 			printf( "admin account confirm reply\n" );
 			break;
-			
+
 		// account delete reply
 		case 0x09:
 			printf( "admin account delete reply\n" );
-			break;			
-			
+			break;
+
 		default:
-			printf( "**********************\nUnknown Packet!  Gen: %X	Spc: %X\n**********************", snac.genus, snac.specie );			
+			printf( "**********************\nUnknown Packet!  Gen: %X	Spc: %X\n**********************", snac.genus, snac.specie );
 	}
 }
-		
+
 //-----------------------------------------------------
 
 void AIMNetManager::DecodeBOSSNAC( SNAC_Object& snac ) {
@@ -348,28 +349,28 @@ void AIMNetManager::DecodeBOSSNAC( SNAC_Object& snac ) {
 		case 0x01:
 			printf( "BOS_SPECIFIC_GENUS error! (uh-oh)\n" );
 			break;
-			
+
 		// somebody else logged on as you
 		case 0x02:
 			MishMashWarningFunction( 1, snac );
 			break;
-			
+
 		// BOS rights response
 		case 0x03:
 			printf( "BOS rights response\n" );
 			break;
-		
+
 		// another error
 		case 0x09:
 			printf( "server BOS error... odd...\n" );
 			break;
-			
+
 		default:
 			printf( "**********************\nUnknown Packet!  Gen: %X	Spc: %X\n**********************", snac.genus, snac.specie );
-			
+
 	}
 }
-		
+
 //-----------------------------------------------------
 
 void AIMNetManager::DecodeOtherSNAC( SNAC_Object& snac ) {
@@ -379,49 +380,49 @@ void AIMNetManager::DecodeOtherSNAC( SNAC_Object& snac ) {
 		printf( "Invite a friend to join AIM acknowledged\n" );
 		return;
 	}
-	
+
 	// Popup notices
 	else if( snac.genus == POPUP_NOTICE_GENUS ) {
-		
+
 		// error
 		if( snac.specie == 0x01 ) {
 			printf( "POPUP_NOTICE_GENUS error! (uh-oh)\n" );
 			return;
 		}
-		
+
 		// display popup
 		else if( snac.specie == 0x02 ) {
 			printf( "server wants to display a popup\n" );
 			return;
 		}
-		
+
 		else {
 			printf( "**********************\nUnknown Packet!  Gen: %X	Spc: %X\n**********************", snac.genus, snac.specie );
 			return;
 		}
 	}
-	
+
 	// Stats
 	else if( snac.genus == STATS_GENUS ) {
-		
+
 		// error
 		if( snac.specie == 0x01 ) {
 			printf( "STATS_GENUS error! (uh-oh)\n" );
 			return;
 		}
-		
+
 		// set minimum report interval
 		else if( snac.specie == 0x02 ) {
 			printf( "set minimum report interval\n" );
 			return;
 		}
-		
+
 		// stats report ack
 		else if( snac.specie == 0x04 ) {
 			printf( "stats report ack\n" );
 			return;
 		}
-		
+
 		else {
 			printf( "**********************\nUnknown Packet!  Gen: %X	Spc: %X\n**********************", snac.genus, snac.specie );
 			return;
@@ -581,25 +582,25 @@ void AIMNetManager::DecodeGenericServiceSNAC( SNAC_Object& snac ) {
 			}
 			SendSNACPacket(mainNetlet, req);
 			break;
-					
+
 		// rate information received
 		//
 		// right now, we're ignoring this, and that's a BAD IDEA
 		case 0x07:
 			printf( "Rate information received\n" );
 			break;
-					
+
 		// rate violation (bad)
 		case 0x0a:
 			MishMashWarningFunction( 3, snac );
 			break;
-					
+
 		// info on our screen name
 		case 0x0f:
 			printf( "screen name information received.\n" );
 			ParseMyUserInfoPacket( snac.data );
 			break;
-					
+
 		// warning
 		case 0x10:
 			printf( "Someone just warned you!\n" );
@@ -610,12 +611,12 @@ void AIMNetManager::DecodeGenericServiceSNAC( SNAC_Object& snac ) {
 		case 0x12:
 			printf( "Migration notice... oscar wants us to move!\n" );
 			break;
-				
+
 		// Message of the day (?) server sends this after BOS login...
 		case 0x13:
 			printf( "...\n" );
 			break;
-			
+
 		case 0x18:
 			printf("the supported versions, oh my!\n");
 			off = 0;
@@ -629,7 +630,7 @@ void AIMNetManager::DecodeGenericServiceSNAC( SNAC_Object& snac ) {
 			break;
 
 		default:
-			printf( "**********************\nUnknown Packet!  Gen: %X	Spc: %X\n**********************", snac.genus, snac.specie );			
+			printf( "**********************\nUnknown Packet!  Gen: %X	Spc: %X\n**********************", snac.genus, snac.specie );
 	}
 }
 

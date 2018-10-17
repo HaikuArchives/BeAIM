@@ -4,7 +4,8 @@
 #include "Say.h"
 #include <stdlib.h>
 #include <unistd.h>
-#include "rsamd5.h"
+#define _BSD_SOURCE
+#include <sys/md5.h>
 
 #define BEAIM_NEW_LOGIN
 
@@ -25,21 +26,21 @@ void AIMNetManager::Login( BMessage* message ) {
 	BString aim_host;
 	int32 aim_port = 0;
 	clientReady = false;
-	
+
 	// Set the number of steps in this particular login
 	BMessage* sendMessage = new BMessage(BEAIM_SET_LOGIN_STEP_COUNT);
 	sendMessage->AddInt32( "count", 29 );
 	PostAppMessage( sendMessage );
-	
+
 	// Get the host and port from the prefs
 	prefs->ReadString( "AIMHost", aim_host, "login.oscar.aol.com", true, false );
 	aim_port = prefs->ReadInt32( "AIMPort", 5190, true );
-	
+
 	// Since this is all event based, we have to make copies of the sn/pw
 	loginScreenName = BString(message->FindString("userid"));
 	loginPassword = BString((char*)message->FindString("password"));
 
-	// take care of the proxy stuff	
+	// take care of the proxy stuff
 	netProxyMode proxyMode = (netProxyMode)prefs->ReadInt32( "ProxyMode", (int32)NPM_NO_PROXY, true );
 	BString proxyHost, authUser, authPass;
 	int32 proxyPort = prefs->ReadInt32( "ProxyPort", 80, true );
@@ -48,11 +49,11 @@ void AIMNetManager::Login( BMessage* message ) {
 	prefs->ReadString( "ProxyPass", authPass, "", true, false );
 	bool auth = prefs->ReadBool( "ProxyAuth", false, true );
 	SetProxyInfo( proxyMode, proxyHost, proxyPort, auth, authUser, authPass );
-	
+
 	// first: grab a netlet (the authorization netlet)
 	authNetlet = MakeNetlet(NLT_AUTH);
 	printf( "--> MADE AUTH NETLET: id=%d\n", authNetlet.nid );
-	
+
 	// Time to begin... connect to the authorization server
 	preLoginPhase = 1;
 	sendSequence = recvSequence = 0;
@@ -66,7 +67,7 @@ void AIMNetManager::Login( BMessage* message ) {
 void AIMNetManager::LoginStep( const char* message, bool updateText ) {
 
 	BMessage* sendMessage;
-	
+
 	// stick an ellipsis on the end of the message
 	BString theMessageThang = BString(message);
 	theMessageThang.Append( BString(B_UTF8_ELLIPSIS) );
@@ -105,7 +106,7 @@ void AIMNetManager::DoLogin( BMessage* info ) {
 
 	// do stuff based on the login phase
 	switch( preLoginPhase ) {
-		
+
 		// Just after the initial connection
 		case 1:
 			LoginStep( Language.get("LS_CONNECTED_AUTH_SERVER") );
@@ -142,7 +143,7 @@ void AIMNetManager::DoLogin( BMessage* info ) {
 			ReceiveBOSResponse();
 			SendBOSRequest();
 			break;
-			
+
 		// Rate response received... send rate acknowledgement (and other stuff)
 		case 7:
 			LoginStep( Language.get("LS_RECV_RATE") );
@@ -150,8 +151,8 @@ void AIMNetManager::DoLogin( BMessage* info ) {
 			SendBOSRequest();
 			ProcessMainServerCommands();
 			break;
-		
-		// Process the responses to various other stuff we have sent up	
+
+		// Process the responses to various other stuff we have sent up
 		case 8:
 		case 9:
 		case 10:
@@ -161,7 +162,7 @@ void AIMNetManager::DoLogin( BMessage* info ) {
 			ReceiveBOSResponse();
 			ProcessMainServerCommands();
 			break;
-		
+
 		// server is done sending responses... send up more stuff
 		case 11:
 			snooze(500000);
@@ -171,7 +172,7 @@ void AIMNetManager::DoLogin( BMessage* info ) {
 			SendBOSRequest();
 			ProcessMainServerCommands();
 			break;
-		
+
 		// minimum report interval
 		case 12:
 			snooze(500000);
@@ -179,7 +180,7 @@ void AIMNetManager::DoLogin( BMessage* info ) {
 			ReceiveBOSResponse();
 			ProcessMainServerCommands();
 			break;
-			
+
 		// mystery packet (comes at the end of login)
 		case 13:
 			snooze(500000);
@@ -192,7 +193,7 @@ void AIMNetManager::DoLogin( BMessage* info ) {
 	};
 
 	// Time for the next step
-	++preLoginPhase;	
+	++preLoginPhase;
 }
 
 //-----------------------------------------------------
@@ -211,14 +212,14 @@ void AIMNetManager::SendLoginData() {
 	snac.data << ToAIMWord(0x004B) << ToAIMWord(0x0000);
 	snac.data << ToAIMWord(0x005A) << ToAIMWord(0x0000);
 	SendSNACPacket(authNetlet, snac);
-	LoginStep( Language.get("LS_SENDING_AUTH_DATA") );	
+	LoginStep( Language.get("LS_SENDING_AUTH_DATA") );
 }
 
 //-----------------------------------------------------
 
 DataContainer AIMNetManager::EncryptPassword( BString password )
 {
-	char encoding_table[] = {
+	unsigned char encoding_table[] = {
 		0xf3, 0xb3, 0x6c, 0x99,
 		0x95, 0x3f, 0xac, 0xb6,
 		0xc5, 0xfa, 0x6b, 0x63,
@@ -227,11 +228,11 @@ DataContainer AIMNetManager::EncryptPassword( BString password )
 
 	DataContainer encoded;
 	int32 i;
-	
+
 	// encode the password
 	for( i = 0; i < password.Length(); i++ )
-		encoded << char( password[i] ^ encoding_table[i] );
-		
+		encoded << (unsigned char)( password[i] ^ encoding_table[i] );
+
 	return encoded;
 }
 
@@ -245,7 +246,7 @@ void AIMNetManager::ParseLoginResponse( DataContainer data ) {
 	DataContainer nextServer;
 	int32 nextPort = prefs->ReadInt32("AIMPort", 5190, true);
 
-#ifndef BEAIM_NEW_LOGIN	
+#ifndef BEAIM_NEW_LOGIN
 	// Get the authorization response packet
 	channel = Receive( authNetlet );
 	if( channel != 0x04 ) {
@@ -266,7 +267,7 @@ void AIMNetManager::ParseLoginResponse( DataContainer data ) {
 		Len = GetWord( recvBuf, i );	i += 2;
 		DataContainer Value( recvBuf.getrange(i,Len) );
 		i += Len;
-		
+
 		printf( "%%%%%%%%%%%%%% NEW TLV!!!\n" );
 		printf( "    Tag: %X\n", Tag );
 		printf( "    Len: %X\n\n", Len );
@@ -279,24 +280,24 @@ void AIMNetManager::ParseLoginResponse( DataContainer data ) {
 				Value << char(0);
 				printf( "official screen name: %s\n", Value.c_ptr() );
 				break;
-			
+
 			// error message URL
 			case 0x04:
 				Value << char(0);
 				printf( "error... go to %s for more info\n", Value.c_ptr() );
 				break;
-				
+
 			// BOS IP address (redirect)
 			case 0x05:
 				Value << char(0);
-				
+
 				{
 					// format seems to be addr:port
 					const char* colon = strchr(Value.c_ptr(), ':');
 					if (colon && atoi(colon+1)>0) nextPort = atoi(colon+1);
 					nextServer = colon? Value.getrange(0,colon-Value.c_ptr()):Value;
 					nextServer << char(0);
-					
+
 					printf( "The BOS IP to redirect to is %s\n", nextServer.c_ptr() );
 					printf( "The BOS port to redirect to is %s\n", colon? colon+1:"not specified");
 				}
@@ -330,13 +331,13 @@ void AIMNetManager::ParseLoginResponse( DataContainer data ) {
 						LoginFailure( Language.get("LF_INVALID_SN") );
 						printf( "ERROR: invalid screen name!\n" );
 						break;
-						
+
 					// Invalid password
 					case 0x05:
 						printf( "ERROR: invalid password!\n" );
 						LoginFailure( Language.get("LF_INVALID_PW") );
 						break;
-						
+
 					// Too many logins
 					case 0x18:
 						LoginFailure( Language.get("LF_TOO_FAST") );
@@ -351,14 +352,14 @@ void AIMNetManager::ParseLoginResponse( DataContainer data ) {
 				}
 				connected = false;
 				break;
-				
+
 			// unknown TLV
 			default:
 				printf( "Hmmmm... no idea what this TLV is. Ignoring it.\n" );
 				break;
 		}
 	}
-	
+
 	// ahhh... all done with the authorization. Disconnect from this server.
 	connected = false;
 	recvSequence = 0;
@@ -369,12 +370,12 @@ void AIMNetManager::ParseLoginResponse( DataContainer data ) {
 	authNetlet.type = -1;
 	mainNetlet = MakeNetlet(NLT_MAIN);
 	printf( "--> MADE MAIN NETLET: id=%d\n", mainNetlet.nid );
-	
+
 	// Now, we have the cookie and the next server, so attempt to connect to that.
 	if( preLoginPhase ) {
 		LoginStep( Language.get("LS_CONNECTING_AIM_SERVER") );
 		printf( "next server is... %s\n", nextServer.c_ptr() );
-		snooze(500000);		
+		snooze(500000);
 		Connect( mainNetlet, nextServer.c_ptr(), nextPort );
 	}
 }
@@ -395,7 +396,7 @@ void AIMNetManager::SendBOSRequest() {
 		SendPacket( mainNetlet, sendBuf, 0x01 );
 		return;
 	}
-	
+
 	// Send a rate request, to find out how fast we can send SNAC's
 	if( preLoginPhase == 6 ) {
 		printf( "// Send a rate request, to find out how fast we can send SNAC's\n ");
@@ -404,13 +405,13 @@ void AIMNetManager::SendBOSRequest() {
 		SendSNACPacket( mainNetlet, snac );
 		return;
 	}
-	
+
 	// Send lots of stuff requests... order doesn't matter here, so
 	// we can "chunk" them together
 	if( preLoginPhase == 7 ) {
 
 		LoginStep( Language.get("LS_SEND_INFO_REQS") );
-		
+
 		// Send an acknowledgement that we got the rate response
 		snac.Update( 0x01, 0x08, 0x00, 0x00, 0x1016 );
 		snac.data << ToAIMWord( 0x0001 ) << ToAIMWord( 0x0002 )
@@ -429,30 +430,30 @@ void AIMNetManager::SendBOSRequest() {
 		snac.Update( 0x01, 0x0E, 0x00, 0x00, 0x101a );
 		SendSNACPacket( mainNetlet, snac );
 		LoginStep( "", false );
-		
+
 		// Send BOS rights request
 		snac.Update( 0x09, 0x02, 0x00, 0x00, 0x101a );
 		SendSNACPacket( mainNetlet, snac );
 		LoginStep( "", false );
-		
+
 		// Send BuddyList rights request
 		snac.Update( 0x13, 0x02, 0x00, 0x00, 0x101b );
 		SendSNACPacket( mainNetlet, snac );
 		LoginStep( "", false );
-		
+
 		// Send locate service rights request
 		snac.Update( 0x02, 0x02, 0x00, 0x00, 0x101c );
 		SendSNACPacket( mainNetlet, snac );
 		LoginStep( "", false );
-		
+
 		// Send IM Parameter info request
 		snac.Update( 0x04, 0x04, 0x00, 0x00, 0x101d );
 		SendSNACPacket( mainNetlet, snac );
 		LoginStep( Language.get("LS_RECV_INFO_REQS") );
-		
+
 		return;
 	}
-	
+
 	// send up another big load of stuff
 	if( preLoginPhase == 11 ) {
 
@@ -466,14 +467,14 @@ void AIMNetManager::SendBOSRequest() {
 		// Optional(?) SNAC number 2
 		snac.Update( 0x09, 0x07, 0x00, 0x00, 0x101f );
 		SendSNACPacket( mainNetlet, snac );
-		
+
 		// Send up the buddy list
 		GenList<DataContainer> BList;
 		DataContainer tempList;
 		LoadBuddyList( BList );
 		LoginStep( Language.get("LS_SENDING_BUDDY_LIST") );
 		printf( "Sending buddy list...\n" );
-		
+
 		while( BList.Dequeue(tempList) ) {
 			snac.Update( 0x03, 0x04, 0x00, 0x00, 0x1020 );
 			snac.data << tempList;
@@ -485,7 +486,7 @@ void AIMNetManager::SendBOSRequest() {
 		BString profile = prefs->Profile();
 		LoginStep( Language.get("LS_SENDING_USER_PROFILE") );
 		SetProfileStuff( profile, BString() );
-		
+
 		// send up the block list (if there is one)
 		AIMUser ttemp;
 		if( users->GetNextBlockedUser( ttemp, true ) ) {
@@ -499,7 +500,7 @@ void AIMNetManager::SendBOSRequest() {
 				  << ToAIMWord(0x1f3f) << ToAIMWord(0x03e7) << ToAIMWord(0x03e7)
 				  << ToAIMWord(0x00)   << ToAIMWord(0x64);
 		SendSNACPacket( mainNetlet, snac );
-		
+
 		// send client online/ready
 		LoginStep( Language.get("LS_SENDING_CLIENT_READY") );
 		snac.Update( 0x01, 0x02, 0x00, 0x00, 0x1023 );
@@ -516,10 +517,10 @@ void AIMNetManager::SendBOSRequest() {
 				  << ToAIMWord(0x01) << ToAIMWord(0x01) << ToAIMWord(0x0b)
 				  << ToAIMWord(0x01) << ToAIMWord(0x01) << ToAIMWord(0x01);
 		SendSNACPacket( mainNetlet, snac );
-		
+
 //		snac.Update(0x13, 0x07, 0, 0, 0x1024);
 //		SendSNACPacket(mainNetlet, snac);
-		
+
 		// ... and we're almost officially online!
 		return;
 	}
@@ -532,7 +533,7 @@ void AIMNetManager::ReceiveBOSResponse() {
 	// Get the actual data
 	char channel = Receive( mainNetlet );
 	SNAC_Object snac;
-	
+
 	// The Host-Ready response
 	if( preLoginPhase == 6 || preLoginPhase == 7 ) {
 		if( channel != 0x02 ) {
@@ -543,7 +544,7 @@ void AIMNetManager::ReceiveBOSResponse() {
 		DecodeSNACPacket( snac );
 		return;
 	}
-	
+
 	// the "default" case
 	snac = SNAC_Object( recvBuf );
 	DecodeSNACPacket( snac );
@@ -552,13 +553,13 @@ void AIMNetManager::ReceiveBOSResponse() {
 //-----------------------------------------------------
 
 void AIMNetManager::LoadBuddyList( GenList<DataContainer>& buddies ) {
-	
+
 	const int maxList = 50;
 	AIMUser user;
 	DataContainer adder;
 	int count = 0;
 	bool kg;
-	
+
 	// add 'em all, in blocks of [maxlist]
 	kg = users->GetAllBuddies(user, true);
 	while( kg ) {
@@ -566,19 +567,19 @@ void AIMNetManager::LoadBuddyList( GenList<DataContainer>& buddies ) {
 		// add the length of the name, then the name
 		adder << char(user.Username().Length());
 		adder << (char*)user.UserString();
-		
+
 		printf( "ADD:  [%d] %s\n", int(char(user.Username().Length())), (char*)user.UserString() );
-		
+
 		// finish the block if needed
 		if( !(++count % maxList) ) {
 			buddies.Add( adder );
-			adder = "";		
+			adder = "";
 		}
 
 		// next buddy, please
 		kg = users->GetAllBuddies(user, false);
 	}
-	
+
 	// if there's anything left in adder, add it
 	if( adder.length() > 0 )
 		buddies.Add( adder );
@@ -601,7 +602,7 @@ void AIMNetManager::ParseMyUserInfoPacket( DataContainer data ) {
 	wLevel = (unsigned short)( rint( (double)GetWord(data,i) / 10.0 ) );
 	client->SetWarningLevel( wLevel );
 	printf( "warning level? %u\n", wLevel );
-	
+
 	temp2 = GetWord( data, i );	i += 2;
 
 	// Go through all the TLV's in this packet
@@ -612,7 +613,7 @@ void AIMNetManager::ParseMyUserInfoPacket( DataContainer data ) {
 		Len = GetWord( data, i );	i += 2;
 		DataContainer Value( data.getrange(i,Len) );
 		i += Len;
-		
+
 		// Go through the possible tag values
 		switch( Tag ) {
 
@@ -620,14 +621,14 @@ void AIMNetManager::ParseMyUserInfoPacket( DataContainer data ) {
 			case 0x02:
 				//printf( "join date\n" );
 				break;
-				
+
 			// on since date
 			case 0x03:
 				//printf( "on since date\n" );
 				temp2 = (unsigned short)GetWord( Value, 0 );
 				onSince = (temp2 << 16) + (unsigned short)GetWord( Value, 2 );
 				break;
-				
+
 			default:
 				printf( "ParseMyUserInfoPacket Unknown TLV: type 0x%02x, len %d bytes\n", Tag, Len );
 				break;
@@ -642,7 +643,7 @@ void AIMNetManager::NowOnline() {
 
 	preLoginPhase = 0;
 	printf( "You are now online... officially!\n" );
-	
+
 	// Send a message saying that the signon was successful
 	BMessage* goodSignOn = new BMessage(BEAIM_SIGN_ON_SUCCESSFUL);
 	PostAppMessage( goodSignOn );

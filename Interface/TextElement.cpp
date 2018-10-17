@@ -63,7 +63,7 @@ gLink* gLink::operator=( gLink& g ) {
 		SetLink( g.address );
 	else
 		Clear();
-	
+
 	return this;
 }
 
@@ -75,7 +75,7 @@ bool gLink::operator==( gLink& g ) {
 		return false;
 	if( !used )
 		return true;
-		
+
 	return bool( strcasecmp(address,g.address) == 0 );
 }
 
@@ -100,7 +100,7 @@ void gTextElement::Clear() {
 //-----------------------------------------------------
 
 gTextElement::~gTextElement() {
-	
+
 	delete[] fontFace;
 }
 
@@ -113,7 +113,7 @@ gTextElement* gTextElement::operator=( gTextElement& g ) {
 	SetFontColor( g.FontColor() );
 	SetFontFace( g.FontFace() );
 	SetFontFace( g.FontFace() );
-	SetLink( g.Link() );
+	SetLink( g.link );
 	mask = g.mask;
 	offset = g.offset;
 	return this;
@@ -126,7 +126,7 @@ void gTextElement::MakeFontBackup( gTextElement& g ) {
 	// clear out the structure
 	ClearMask();
 	link.SetUsed( false );
-	
+
 	// back up the font values
 	SetFontSize( g.fontSize );
 	SetFontColor( g.fontColor );
@@ -141,14 +141,14 @@ void gTextElement::RestoreFontBackup( gTextElement& g ) {
 
 	// reset the font
 	ResetFont();
-	
+
 	if( g.fontSize != fontSize )
 		printf( "restoring font size\n" );
 	if( !(g.fontColor == fontColor) )
 		printf( "restoring font color\n" );
 	if( strcasecmp(fontFace, g.fontFace) != 0 )
 		printf( "restoring font face\n" );
-	
+
 	// conditionally set values
 	if( g.fontSize != fontSize || g.mask & TE_FONTSIZE )
 		SetFontSize( g.fontSize );

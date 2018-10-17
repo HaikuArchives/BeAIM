@@ -6,6 +6,7 @@
 #include <StringView.h>
 #include <ListView.h>
 #include <ScrollView.h>
+#include <PopUpMenu.h>
 #include <MenuItem.h>
 #include "SingleWindowBase.h"
 #include "GStatusView.h"
@@ -17,8 +18,8 @@ const uint32 ENABLE_CONTEXT_BUTTONS = 'eCtx';
 //-----------------------------------------------------
 
 class SearchItem : public BStringItem
-{ 
-	public: 
+{
+	public:
 		SearchItem( char *s, bool f = false ) : BStringItem(s) { fake = f; };
 		virtual void DrawItem( BView *owner, BRect frame, bool complete = false );
 		bool fake;
@@ -33,20 +34,20 @@ class ResultsListView : public BListView
 		~ResultsListView();
 		virtual void MouseDown( BPoint cursor );
 		virtual void SelectionChanged();
-		
+
 	private:
 		BPopUpMenu* userPopup;
 };
 
 //-----------------------------------------------------
 
-class ResultsView : public BView 
+class ResultsView : public BView
 {
 	friend class SearchResultsWindow;
 
 	public:
 		ResultsView( BRect frame, const char *name );
-		
+
 	private:
 		BStringView* resLabel;
 		ResultsListView* lview;
@@ -60,7 +61,7 @@ class ResultsView : public BView
 
 //-----------------------------------------------------
 
-class SearchResultsWindow : public SingleWindowBase 
+class SearchResultsWindow : public SingleWindowBase
 {
 	public:
 
@@ -68,9 +69,9 @@ class SearchResultsWindow : public SingleWindowBase
 		virtual	bool QuitRequested();
 		virtual void MessageReceived( BMessage* );
 		virtual void DispatchMessage( BMessage* msg, BHandler* handler );
-				
+
 	private:
-	
+
 		void AddPerson();
 		void GetInfo();
 		void SetupNewSearch( BMessage* msg );

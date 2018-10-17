@@ -87,7 +87,7 @@ SRCS = BeAIM.cpp\
 	Protocol/AIMProtocol.cpp\
 	Protocol/AIMUser.cpp\
 	Protocol/AIMUserFunctions.cpp\
-	Protocol/rsamd5.c\
+	Protocol/md5c.c\
 	XML/hashtable.c\
 	XML/xmlparse.c\
 	XML/xmlrole.c\
@@ -117,7 +117,7 @@ RSRCS =
 #	- 	if your library does not follow the standard library naming scheme,
 #		you need to specify the path to the library and it's name.
 #		(e.g. for mylib.a, specify "mylib.a" or "path/mylib.a")
-LIBS = be translation textencoding tracker $(STDCPPLIBS) game media network
+LIBS = be translation textencoding tracker game media network $(STDCPPLIBS)
 
 #	Specify additional paths to directories following the standard libXXX.so
 #	or libXXX.a naming scheme. You can specify full paths or paths relative
@@ -138,7 +138,7 @@ LOCAL_INCLUDE_PATHS = Headers
 
 #	Specify the level of optimization that you want. Specify either NONE (O0),
 #	SOME (O1), FULL (O2), or leave blank (for the default optimization level).
-OPTIMIZE := FULL
+OPTIMIZE := SOME
 
 # 	Specify the codes for languages you are going to support in this
 # 	application. The default "en" one must be provided too. "make catkeys"

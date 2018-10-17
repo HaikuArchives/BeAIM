@@ -1,5 +1,7 @@
 #include "GStatusView.h"
 
+#include <string.h>
+
 //=========================================================================
 
 GStatusView::GStatusView( char* msg, BRect rect )
@@ -27,24 +29,24 @@ void GStatusView::Draw( BRect ) {
 	BPoint start = frame.LeftTop();
 	BPoint end = frame.RightTop();
 	StrokeLine( start, end );
-	
+
 	SetHighColor( 0, 0, 0 );
 	SetLowColor( 222, 219, 222 );
-	SetFont(be_plain_font);	
+	SetFont(be_plain_font);
 	SetFontSize(11);
-	
+
 	if( spinner )
 		MovePenTo(frame.left + 60, frame.bottom-2);
 	else
 		MovePenTo(frame.left + 4, frame.bottom-2);
-	
+
 	DrawString( showString );
 }
 
 //-------------------------------------------------------------------------
 
 void GStatusView::MouseDown( BPoint point ) {
-	
+
 	BView::MouseDown( point );
 }
 
@@ -74,17 +76,17 @@ void GStatusView::SetSpinner( bool on ) {
 		spinner->SetHighColor(0,128,0);
 		AddChild( spinner );
 		if( Window() )
-			spinner->Start();	
+			spinner->Start();
 	}
-	
+
 	// if it's not needed, delete it
 	else {
 		if( spinner ) {
 			spinner->Stop();
 			spinner->RemoveSelf();
 			delete spinner;
-			spinner = 0;	
-		}	
+			spinner = 0;
+		}
 	}
 }
 

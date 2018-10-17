@@ -16,8 +16,8 @@
 
 //-----------------------------------------------------
 
-int main( int argc, void** argv )
-{	
+int main( int argc, char* argv[] )
+{
 	strcpy( AppFileName, (char*)argv[0] );
 
 	BeAIMApplication myApplication;
@@ -25,7 +25,7 @@ int main( int argc, void** argv )
 		Say( "Error initializing BeAIM. Exiting." );
 		return 1;
 	}
-	
+
 	myApplication.Run();
 
 	return 0;
@@ -61,12 +61,12 @@ BeAIMApplication::BeAIMApplication()
 
 	/*
 	user->SetUser( "MegaPiffle" );
-	BRect rect(0,0,330,286); 
+	BRect rect(0,0,330,286);
 	rect.OffsetBy( 100, 100 );
 	InfoWindow* ret = new InfoWindow( rect, "MtDew42" );
 	ret->Show();
-	
-	snooze( 1000000 );	
+
+	snooze( 1000000 );
 	BMessage* normal = new BMessage(BEAIM_UPDATE_INFO);
 	normal->AddString( "userid", "MtDEW42" );
 	normal->AddString( "profile", "<html><body bgcolor=\"#66FF66\">This <b>is</b> a <i>profile@profile.com</i></body></html>" );
@@ -74,10 +74,10 @@ BeAIMApplication::BeAIMApplication()
 	normal->AddString( "userclass", "Internet" );
 	normal->AddBool( "away", false );
 	ret->PostMessage( normal );
-	
-	snooze( 1000000 );	
+
+	snooze( 1000000 );
 	normal = new BMessage(BEAIM_UPDATE_AWAY_INFO);
-	normal->AddString( "userid", "MtDEW42" ); 
+	normal->AddString( "userid", "MtDEW42" );
 	normal->AddString( "away_message", "<html><body bgcolor=\"#FF0000\"><font color=\"#FFFFFF\">Hello, %n, This <b>is</b> an www.away.com message.<br>time: %t<br>date: %d</font></body></html>" );
 	ret->PostMessage( normal );
 	*/
@@ -198,18 +198,18 @@ void BeAIMApplication::MessageReceived( BMessage* message )
 		case BEAIM_SEND_IDLE_PULSE:
 			aimnet->PostMessage( message );
 			break;
-			
+
 		// don't send any no-ops unless we're logged in...
 		case BEAIM_SEND_NOOP:
 		case BEAIM_CLEAR_SNACPILE:
 			if( client->LoggedIn() )
 				aimnet->PostMessage( message );
 			break;
-			
+
 		case BEAIM_ITF_IDLE_PULSE:
 			client->Idle();
 			break;
-			
+
 		case BEAIM_ITF_NO_LONGER_IDLE:
 			client->NotIdle();
 			break;
@@ -230,7 +230,7 @@ void BeAIMApplication::MessageReceived( BMessage* message )
 		case BEAIM_LOGOUT:
 			Logout();
 			break;
-			
+
 		case BEAIM_SEND_ARBITRARY_DATA:
 			windows->MakeDataSenderWindow();
 			break;
@@ -274,7 +274,7 @@ void BeAIMApplication::MessageReceived( BMessage* message )
 			windows->OpenBuddyList();
 			windows->CloseSignOnWindow();
 			break;
-			
+
 		case BEAIM_UPDATE_INFO:
 		case BEAIM_UPDATE_AWAY_INFO:
 		case BEAIM_INCOMING_IM:
@@ -295,18 +295,18 @@ void BeAIMApplication::MessageReceived( BMessage* message )
 		case BEAIM_RELOAD_PREF_SETTINGS:
 			DoGlobalPrefs();
 			break;
-			
+
 		case BEAIM_TOGGLE_DESKBAR_ICON:
 			DoDeskbarIcon( message->FindBool("enabled") );
 			break;
-			
+
 		case BEAIM_OPEN_SINGLE_WINDOW:
 			if( message->HasInt32("posnum") )
 				windows->OpenSingleWindow( message, message->FindInt32("posnum") );
 			else
 				windows->OpenSingleWindow( message );
 			break;
-			
+
 		case BEAIM_SINGLE_WINDOW_CLOSED:
 			windows->SingleWindowClosed( message );
 			break;
@@ -315,7 +315,7 @@ void BeAIMApplication::MessageReceived( BMessage* message )
 			//if( !(message->HasBool("done")) )
 			GotDisconnected( message->HasBool("quietly") );
 			break;
-			
+
 		case BEAIM_PERHAPS_IMPORT:
 			PerhapsImport();
 			break;
@@ -332,7 +332,7 @@ void BeAIMApplication::MessageReceived( BMessage* message )
 		case BEAIM_JUMP_TO_BUDDYLIST:
 			windows->ToggleHidden(true);
 			break;
-			
+
 		default:
 			BApplication::MessageReceived( message );
 	}
@@ -359,8 +359,8 @@ void BeAIMApplication::DoBeAIMStartupStuff()
 	sounds->AddSound( WS_ENTER, "Enter", "/boot/home/config/sounds/BeAIM/AIMEnter", false );
 	sounds->AddSound( WS_EXIT, "Exit","/boot/home/config/sounds/BeAIM/AIMExit", true );
 	sounds->AddSound( WS_MSGSEND, "MsgSend", "/boot/home/config/sounds/BeAIM/AIMSend", true );
-	sounds->AddSound( WS_MSGRECEIVE, "MsgReceive", "/boot/home/config/sounds/BeAIM/AIMReceive", true );	
-	sounds->AddSound( WS_NEWMSG, "NewMsg", "/boot/home/config/sounds/BeAIM/AIMNewMessage", true );	
+	sounds->AddSound( WS_MSGRECEIVE, "MsgReceive", "/boot/home/config/sounds/BeAIM/AIMReceive", true );
+	sounds->AddSound( WS_NEWMSG, "NewMsg", "/boot/home/config/sounds/BeAIM/AIMNewMessage", true );
 	sounds->AddSound( WS_WARNED, "Warned", "/boot/home/config/sounds/BeAIM/AIMGotWarned", true );
 	sounds->AddSound( WS_BEEP, "Beep", "/boot/home/config/sounds/BeAIM/AIMDrip", true );
 
@@ -376,8 +376,8 @@ void BeAIMApplication::DoBeAIMStartupStuff()
 	aimnet = new AIMNetManager;
 	users = new UserManager;
 	client = new ClientManager;
-	
-	
+
+
 	// yay, we're initialized!
 	initialized = true;
 }
@@ -405,7 +405,7 @@ void BeAIMApplication::DoBeAIMShutdownStuff() {
 	prefs = 0;
 	delete sounds;
 	sounds = 0;
-	
+
 	// close down the User manager
 	users->Close();
 	users = NULL;
@@ -417,7 +417,7 @@ void BeAIMApplication::DoBeAIMShutdownStuff() {
 void BeAIMApplication::Logout() {
 
 	BMessage* disMessage;
-	
+
 	// close some of the windows, anyway...
 //	windows->CloseSingleWindows();
 
@@ -426,12 +426,12 @@ void BeAIMApplication::Logout() {
 //	disMessage->AddBool("dontkill", true);
 //	windows->SendBuddyListMessage( disMessage );
 
-	
-	// cleanup all those silly open windows	
+
+	// cleanup all those silly open windows
 	windows->Cleanup(false);
 
 	windows->OpenSignOnWindow();
-	
+
 	// let the ClientManager do its thing
 	client->SetLoggedIn(false);
 
@@ -445,10 +445,10 @@ void BeAIMApplication::Logout() {
 void BeAIMApplication::DoDeskbarIcon( bool install ) {
 
 	if( install )
-		TrayIcon::AddTrayIcon();	
+		TrayIcon::AddTrayIcon();
 	else
-		TrayIcon::RemoveTrayIcon();	
-	
+		TrayIcon::RemoveTrayIcon();
+
 	deskbarIconInstalled = install;
 }
 
@@ -490,9 +490,9 @@ void BeAIMApplication::DoGlobalPrefs() {
 	// do deskbar icon prefs
 	bool deskbarEnabled = prefs->ReadBool("UseDeskbarIcon", true);
 	if( deskbarEnabled != deskbarIconInstalled ) {
-		DoDeskbarIcon( deskbarEnabled );	
+		DoDeskbarIcon( deskbarEnabled );
 	}
-	
+
 	// set the deskbar visibility prefs
 	SetDeskbarVisibility( prefs->ReadBool("ShowDeskbarWindowEntry",true,true) );
 }
@@ -505,7 +505,7 @@ void BeAIMApplication::GotDisconnected( bool quietly ) {
 
 	// if the client is logged in, do lotsa stuff
 	if( client->LoggedIn() ) {
-	
+
 		// such as close most of the windows, for example
 		windows->CloseSingleWindows();
 		disMessage = new BMessage(B_QUIT_REQUESTED);
@@ -513,7 +513,7 @@ void BeAIMApplication::GotDisconnected( bool quietly ) {
 		windows->SendBuddyListMessage( disMessage );
 		windows->OpenSignOnWindow();
 		client->SetLoggedIn(false);
-		
+
 		// tell 'em about it?
 		if( !quietly )
 			windows->ShowMessage( Language.get("ERR_GOT_DISCONNECTED"), B_INFO_ALERT );

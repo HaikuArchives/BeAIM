@@ -201,8 +201,8 @@ void DataSenderWindow::DoData( bool which ) {
 
 //=========================================================================
 
-DataSenderView::DataSenderView( BRect rect )
-	   	   : BView(rect, "generic_input_view", B_FOLLOW_ALL_SIDES, B_WILL_DRAW)
+DataSenderView::DataSenderView( BRect irect )
+	   	   : BView(irect, "generic_input_view", B_FOLLOW_ALL_SIDES, B_WILL_DRAW)
 {
 	SetViewColor( 216, 216, 216 );
 
