@@ -65,7 +65,7 @@ GenericInputWindow::GenericInputWindow( BRect frame, char* title, char* name, BM
 		cancelLabel = Language.get("CANCEL_LABEL");
 		
 	// Make the Save and Cancel buttons
-	SaveButton = new BButton( btnRect, "savebutton", okLabel.String(), new BMessage((unsigned long)B_OK));
+	SaveButton = new BButton( btnRect, "savebutton", okLabel.String(), new BMessage((uint32)B_OK));
 	SaveButton->MakeDefault( true );
 	btnRect.OffsetBy( 70, 0 );
 	CancelButton = new BButton( btnRect, "cancelbutton", cancelLabel.String(), new BMessage(B_CANCEL) );

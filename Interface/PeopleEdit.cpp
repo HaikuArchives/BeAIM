@@ -265,7 +265,7 @@ PersonAddEditView::PersonAddEditView( BRect rect, uint32 id, BString gp )
 	}
 
 	// Make the Save and Cancel buttons
-	SaveButton = new BButton( btnRect, "savebutton", "Save", new BMessage((unsigned long)B_OK) );
+	SaveButton = new BButton( btnRect, "savebutton", "Save", new BMessage((uint32)B_OK) );
 	SaveButton->MakeDefault( true );
 	btnRect.OffsetBy( 70, 0 );
 	CancelButton = new BButton( btnRect, "cancelbutton", "Cancel", new BMessage(B_CANCEL) );

@@ -1882,7 +1882,7 @@ BLBubbleWindow::~BLBubbleWindow() {
 
 void BLBubbleWindow::GetMouseInfo( BPoint& point, ulong& buttons ) {
 	Lock();
-	textview->GetMouse( &point, &buttons );
+	textview->GetMouse( &point, (uint32*)&buttons );
 	textview->ConvertToScreen( &point );
 	Unlock();
 }
