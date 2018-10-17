@@ -44,13 +44,13 @@ inline void Say( char* title, int32 what ) {
 	delete[] Msg;
 }
 
-// Int32 without title version
+/* Int32 without title version
 inline void Say( int32 what ) {
 	char Msg[25];
 	sprintf( Msg, "%ld", what );
 	Say( Msg );
 }
-
+*/
 // Float with title version
 inline void Say( const char* title, float what ) {
 	char* Msg = new char[strlen(title) + 25];
