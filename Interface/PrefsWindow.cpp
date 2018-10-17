@@ -45,37 +45,37 @@ GenPrefView::GenPrefView(BRect rect, bool go)
 {
 	SetViewColor( GetBeAIMColor(BC_NORMAL_GRAY) );
 	globalOnly = go;
-	
+
 	// make a label
 	globalLabel = new BStringView( BRect(4,4,400,21), "", "Global Settings:" );
 	globalLabel->SetFont( be_bold_font );
 	globalLabel->SetFontSize( 12.0 );
 	AddChild( globalLabel );
-	
+
 	// create the language list
 	CreateLanguageList();
 	LanguageList = new BMenuField( BRect(12,22,rect.Width(),0), "languagelist", "Language:", LanguageMenu );
 	LanguageList->ResizeToPreferred();
 	LanguageList->SetDivider( 150 );
 	AddChild( LanguageList );
-	
+
 	// (possibly) add the lang-debugging "Apply Lang" button
 	if( modifiers() & B_SHIFT_KEY ) {
 		AddChild( new BButton(BRect(Frame().Width()-85,22,Frame().Width()-5,0), "", "Apply Lang", new BMessage(PREFS_RL_LANG)) );
-	}	
-	
+	}
+
 	// Show the BeAIM window entry in the deskbar
 	BRect tempRect = BRect(12,46,20,46+16);
 	ShowDeskbarEntry = new BCheckBox( tempRect, "", "Show BeAIM window entry in the deskbar",  NULL );
 	AddChild( ShowDeskbarEntry );
-	
+
 	// make a label
 	userSpecLabel = new EnStringView( BRect(4,80,400,97), "", "User-specific Settings:" );
 	userSpecLabel->SetFont( be_bold_font );
 	userSpecLabel->SetFontSize( 12.0 );
 	userSpecLabel->SetEnabled( !globalOnly );
 	AddChild( userSpecLabel );
-	
+
 	// create the encodings list
 	CreateEncodingsList();
 	EncodingsList = new BMenuField( BRect(12,98,rect.Width(),0), "encodingslist", "Default Encoding:", EncodingsMenu );
@@ -88,8 +88,8 @@ GenPrefView::GenPrefView(BRect rect, bool go)
 	BRect CheckRect = BRect(12,122,20,122+16);
 	BuddyListAllWorkspaces = new BCheckBox( CheckRect, "", "Show the Buddy List in all workspaces",  NULL );
 	BuddyListAllWorkspaces->SetEnabled( !globalOnly );
-	AddChild( BuddyListAllWorkspaces );	
-	
+	AddChild( BuddyListAllWorkspaces );
+
 	// Play sound effects or not
 	CheckRect.top += 20;
 	PlaySounds = new BCheckBox( CheckRect, "", "Play sound effects",  NULL );
@@ -101,7 +101,7 @@ GenPrefView::GenPrefView(BRect rect, bool go)
 	UseDeskbar = new BCheckBox( CheckRect, "", "Enable BeAIM deskbar icon",  NULL );
 	UseDeskbar->SetEnabled( !globalOnly );
 	AddChild( UseDeskbar );
-	
+
 	// Now initialize them
 	BuddyListAllWorkspaces->SetValue( prefs->ReadBool("BuddyListAllWorkspaces", true) );
 	PlaySounds->SetValue( prefs->ReadBool("PlaySounds", true) );
@@ -121,12 +121,12 @@ void GenPrefView::CreateLanguageList() {
 	BList fileList;
 	BEntry thang;
 	BMessage* msg;
-	
+
 	// get the languages directory
 	langDirName = GetAppDir();
 	langDirName.Append( "Languages" );
 	langDir.SetTo( langDirName.String() );
-	
+
 	// make sure the directory got created A-OK
 	if( langDir.InitCheck() != B_OK )
 		return;
@@ -142,10 +142,10 @@ void GenPrefView::CreateLanguageList() {
 		addName = new BString(fileName);
 		fileList.AddItem( (void*)addName );
 	}
-	
+
 	// sort the items
 	fileList.SortItems( CompareStrings );
-	
+
 	// now... remove and delete the items, and build the menu
 	addName = (BString*)fileList.RemoveItem((int32)0);
 	while( addName ) {
@@ -259,7 +259,7 @@ void GenPrefView::Save() {
 		sprintf( message, "The BeAIM window entry in the deskbar will not be %s until you restart BeAIM.",
 						  showEntry ? "shown" : "hidden" );
 		Say( message );
-	}		
+	}
 
 	// save the prefs
 	if( !globalOnly ) {
@@ -306,7 +306,7 @@ ConnectionPrefView::ConnectionPrefView(BRect rect, bool go)
 	serverBox = new BBox( BRect(7,2,230,78) );
 	serverBox->SetLabel("AIM Server");
 	AddChild( serverBox );
-	
+
 	// set up the server text boxes
 	conHost = new BTextControl( BRect(10,20,205,40), "hostname", "Server:", "", NULL );
 	conHost->SetViewColor( GetBeAIMColor(BC_NORMAL_GRAY) );
@@ -316,12 +316,12 @@ ConnectionPrefView::ConnectionPrefView(BRect rect, bool go)
 	conPort->SetDivider( 70 );
 	serverBox->AddChild( conHost );
 	serverBox->AddChild( conPort );
-	
+
 	// Add the proxy mode group box
 	proxyModeBox = new BBox( BRect(238,4,Bounds().Width()-8,82) );
 	proxyModeBox->SetLabel("Proxy Mode");
 	AddChild( proxyModeBox );
-	
+
 	// add the radio button stuff
 	proxyNo = new BRadioButton( BRect(8,17,140,0), "proxyno", "No Proxy Server", new BMessage(PREFS_PROXYMODE_CHANGED) );
 	proxyHTTPS = new BRadioButton( BRect(8,35,140,0), "proxyhttps", "HTTPS Proxy Server", new BMessage(PREFS_PROXYMODE_CHANGED) );
@@ -334,7 +334,7 @@ ConnectionPrefView::ConnectionPrefView(BRect rect, bool go)
 	proxySettingsBox = new BBox( BRect(8,90,Bounds().Width()-8,186) );
 	proxySettingsBox->SetLabel("Proxy Settings");
 	AddChild( proxySettingsBox );
-	
+
 	// set up the server text boxes
 	proxyHost = new BTextControl( BRect(10,20,175,40), "proxyhost", "Server:", "", NULL );
 	proxyHost->SetViewColor( GetBeAIMColor(BC_NORMAL_GRAY) );
@@ -344,7 +344,7 @@ ConnectionPrefView::ConnectionPrefView(BRect rect, bool go)
 	proxyPort->SetDivider( 70 );
 	proxySettingsBox->AddChild( proxyHost );
 	proxySettingsBox->AddChild( proxyPort );
-	
+
 	// setup the authorization info stuff
 	needsAuth = new BCheckBox( BRect(199,17,378,0), "needsauth", "Authentication required", new BMessage(PREFS_NEEDSAUTH_CHANGED) );
 	authUser = new BTextControl( BRect(199,40,375,60), "authuser", "User:", "", NULL );
@@ -354,7 +354,7 @@ ConnectionPrefView::ConnectionPrefView(BRect rect, bool go)
 	proxySettingsBox->AddChild( needsAuth );
 	proxySettingsBox->AddChild( authUser );
 	proxySettingsBox->AddChild( authPass );
-	
+
 	// add the silly warning about how HTTPS can boot ya
 	httpsWarning = new BStringView( BRect(7,187,375,97), "httpswarning",
 		"Note: Some HTTPS proxy servers will disconnect BeAIM without warning." );
@@ -376,7 +376,7 @@ ConnectionPrefView::ConnectionPrefView(BRect rect, bool go)
 	authUser->SetText( tmpString.String() );
 	prefs->ReadString( "ProxyPass", tmpString, "booga", true, false );
 	authPass->SetText( tmpString.String() );
-	
+
 	// set the radio buttons
 	switch( (netProxyMode)prefs->ReadInt32( "ProxyMode", (int32)NPM_NO_PROXY, true ) ) {
 		case NPM_HTTPS_PROXY:
@@ -390,7 +390,7 @@ ConnectionPrefView::ConnectionPrefView(BRect rect, bool go)
 			proxyNo->SetValue(1);
 			break;
 	}
-	
+
 	// enable/disable stuff
 	EnableProxyControls();
 }
@@ -405,7 +405,7 @@ void ConnectionPrefView::Save() {
 	else if( proxyHTTPS->Value() )
 		prefs->WriteInt32( "ProxyMode", (int32)NPM_HTTPS_PROXY, true );
 	else if( proxySOCKS5->Value() )
-		prefs->WriteInt32( "ProxyMode", (int32)NPM_SOCKS5_PROXY, true );	
+		prefs->WriteInt32( "ProxyMode", (int32)NPM_SOCKS5_PROXY, true );
 	prefs->WriteString( "AIMHost", BString(conHost->Text()), true );
 	sscanf( (char*)conPort->Text(), "%lu", &port );
 	prefs->WriteInt32( "AIMPort", port, true );
@@ -454,7 +454,7 @@ void ConnectionPrefView::EnableProxyControls() {
 				authPass->SetEnabled(false);
 		}
 	}
-	
+
 	// show/hide the warning about HTTPS servers based on whether
 	// HTTPS is the current proxy mode
 	if( proxyHTTPS->Value() ) {
@@ -464,7 +464,7 @@ void ConnectionPrefView::EnableProxyControls() {
 		if( !httpsWarning->IsHidden() )
 			httpsWarning->Hide();
 	}
-	
+
 	// change the default proxy port number based on what the current proxy mode is
 	if( proxyHTTPS->Value() )
 		proxyPort->SetText( "80" );
@@ -480,12 +480,12 @@ void ConnectionPrefView::RefreshLangStrings() {
 	serverBox->SetLabel( Language.get("PREFS_CAIMSERVER_LABEL") );
 	proxyModeBox->SetLabel( Language.get("PREFS_CPROXYSERVER_LABEL") );
 	proxySettingsBox->SetLabel( Language.get("PREFS_CPROXYSETINGS_LABEL") );
-	
+
 	// proxy modes
 	proxyNo->SetLabel( Language.get("PREFS_CPROXYNONE") );
 	proxyHTTPS->SetLabel( Language.get("PREFS_CPROXYHTTPS") );
 	proxySOCKS5->SetLabel( Language.get("PREFS_CPROXYSOCKS5") );
-	
+
 	// stuffage
 	conHost->SetLabel( Language.get("PREFS_CSERVER_NAME") );
 	conPort->SetLabel( Language.get("PREFS_CPORT_NAME") );
@@ -542,28 +542,28 @@ ChatWindowPrefView::ChatWindowPrefView(BRect rect, bool go)
 	ChatShowLinks->ResizeToPreferred();
 	ChatShowLinks->SetEnabled( !globalOnly );
 	AddChild( ChatShowLinks );
-	
+
 	// Prefix incoming messages with '>' in the title bar
 	CheckRect.top += 20;
 	ChatPrefixNewMessages = new BCheckBox( CheckRect, "", "Prefix incoming messages with '>' in the title bar when window is inactive",  NULL );
 	ChatPrefixNewMessages->ResizeToPreferred();
 	ChatPrefixNewMessages->SetEnabled( !globalOnly );
 	AddChild( ChatPrefixNewMessages );
-	
+
 	// Prefix incoming messages with '>' in the title bar
 	CheckRect.top += 20;
 	ChatIRCMeThing = new BCheckBox( CheckRect, "", "Display IRC-style /me actions",  NULL );
 	ChatIRCMeThing->ResizeToPreferred();
 	ChatIRCMeThing->SetEnabled( !globalOnly );
 	AddChild( ChatIRCMeThing );
-	
+
 	// create the size-edit thang
 	sizeEdit = new BTextControl( BRect(330,184,394,182), "blah!", "", "", new BMessage(PREFS_MAG_SIZE_CHANGED) );
 	sizeEdit->SetEnabled( !globalOnly );
 	sizeEdit->TextView()->SetMaxBytes(4);
-	
+
 	sizeEdit->SetDivider( 0 );
-	
+
 	// create the sample-size view
 	BRect tRect1 = BRect( 335, 152, 393, 175 );
 	BRect tRect2 = tRect1;
@@ -579,12 +579,12 @@ ChatWindowPrefView::ChatWindowPrefView(BRect rect, bool go)
 		gray.red = gray.green = gray.blue = 128;
 		sampleSizeView->SetFontAndColor( NULL, B_FONT_ALL, &gray );
 	}
-	
+
 	// create the slider
 	BRect slidRect = BRect( 6, 152, 323, 168 );
 	magSlider = new GSlider( slidRect, 50, 150, sizeEdit, sampleSizeView );
 	magSlider->SetEnabled( !globalOnly );
-	
+
 	// add stuff
 	AddChild( magSlider );
 	AddChild( new BScrollView( "scroll", sampleSizeView ) );
@@ -647,10 +647,10 @@ void ChatWindowPrefView::MagSizeChanged() {
 	BString test;
 	bool good = true;
 	int32 num;
-	
+
 	// strip all the spaces
 	magSize.ReplaceAll( " ", "" );
-	
+
 	// take care of the percentages and stuff
 	test = magSize;
 	if( test[test.CountChars()-1] == '%' ) {
@@ -659,7 +659,7 @@ void ChatWindowPrefView::MagSizeChanged() {
 			good = false;
 		}
 	}
-	
+
 	// now strip all the digits... there should be nothing left
 	if( good ) {
 		test.RemoveSet( "1234567890% " );
@@ -667,23 +667,23 @@ void ChatWindowPrefView::MagSizeChanged() {
 			good = false;
 		}
 	}
-	
+
 	// now do the number check...
 	if( good ) {
 		test = magSize;
-		test.RemoveSet( " %" );	
+		test.RemoveSet( " %" );
 		num = atoi(test.String());
 		if( num < 50 || num > 150 ) {
 			good = false;
 		}
 	}
-	
+
 	// finally, complain if it was bad
 	if( !good )	{
 		Say( (char*)Language.get("ERR_BAD_MAG_VAL") );
 		num = magSlider->Value();
 	}
-	
+
 	// finally, replace the text with a nicely formatted percentage
 	BString finalString = "";
 	finalString << num;
@@ -759,7 +759,7 @@ KeysPrefView::KeysPrefView(BRect rect, bool go)
 	tabLabel->SetFontSize( 12.0 );
 	tabLabel->SetEnabled( !globalOnly );
 	AddChild( tabLabel );
-	
+
 	// add some radio buttons
 	tabIsTab = new BRadioButton( BRect(11,25,140,0), "tabistab", "", NULL );
 	tabIsTab->SetEnabled( !globalOnly );
@@ -767,7 +767,7 @@ KeysPrefView::KeysPrefView(BRect rect, bool go)
 	tabIsFocusChange = new BRadioButton( BRect(11,43,140,0), "tabisfocus", "", NULL );
 	tabIsFocusChange->SetEnabled( !globalOnly );
 	AddChild( tabIsFocusChange );
-	
+
 	// make another label
 	enterLabel = new EnStringView( BRect(4,4+70,400,21), "", ":" );
 	enterLabel->SetFont( be_bold_font );
@@ -787,7 +787,7 @@ KeysPrefView::KeysPrefView(BRect rect, bool go)
 	enterPressesDefButton = new BRadioButton( BRect(11,20,140,0), "enterisdb", "", NULL );
 	enterPressesDefButton->SetEnabled( !globalOnly );
 	addView->AddChild( enterPressesDefButton );
-	
+
 	// now initialize all that stuff
 	bool tempVal = prefs->ReadBool( "TabIsTab", false );
 	(tempVal ? tabIsTab : tabIsFocusChange)->SetValue( true );
@@ -842,7 +842,7 @@ ColorPrefView::ColorPrefView(BRect rect, bool go)
 	tempSV->SetEnabled( !globalOnly );
 	AddChild( tempSV );
 
-	// Color, baby, yeah!	
+	// Color, baby, yeah!
 	cframe = BRect( 6, 28, 36, 43 );
 	sframe = BRect( 43, 31, 264, 43 );
 	bgColor = new ColorView( cframe, 1 );
@@ -853,7 +853,7 @@ ColorPrefView::ColorPrefView(BRect rect, bool go)
 	AddChild( bgColor );
 	AddChild( tempSV );
 
-	// Color, baby, yeah!	
+	// Color, baby, yeah!
 	cframe.OffsetBy( 0, 20 );
 	sframe.OffsetBy( 0, 20 );
 	fontColor = new ColorView( cframe, 2);
@@ -863,8 +863,8 @@ ColorPrefView::ColorPrefView(BRect rect, bool go)
 	tempSV->SetEnabled( !globalOnly );
 	AddChild( fontColor );
 	AddChild( tempSV );
-	
-	// Color, baby, yeah!	
+
+	// Color, baby, yeah!
 	cframe.OffsetBy( 0, 20 );
 	sframe.OffsetBy( 0, 20 );
 	fromYouColor = new ColorView( cframe, 3);
@@ -874,8 +874,8 @@ ColorPrefView::ColorPrefView(BRect rect, bool go)
 	tempSV->SetEnabled( !globalOnly );
 	AddChild( fromYouColor );
 	AddChild( tempSV );
-	
-	// Color, baby, yeah!	
+
+	// Color, baby, yeah!
 	cframe.OffsetBy( 0, 20 );
 	sframe.OffsetBy( 0, 20 );
 	toYouColor = new ColorView( cframe, 4);
@@ -885,8 +885,8 @@ ColorPrefView::ColorPrefView(BRect rect, bool go)
 	tempSV->SetEnabled( !globalOnly );
 	AddChild( toYouColor );
 	AddChild( tempSV );
-	
-	// Color, baby, yeah!	
+
+	// Color, baby, yeah!
 	cframe.OffsetBy( 0, 20 );
 	sframe.OffsetBy( 0, 20 );
 	eventColor = new ColorView( cframe, 5);
@@ -896,8 +896,8 @@ ColorPrefView::ColorPrefView(BRect rect, bool go)
 	tempSV->SetEnabled( !globalOnly );
 	AddChild( eventColor );
 	AddChild( tempSV );
-	
-	// Color, baby, yeah!	
+
+	// Color, baby, yeah!
 	cframe.OffsetBy( 0, 20 );
 	sframe.OffsetBy( 0, 20 );
 	actionColor = new ColorView( cframe, 6);
@@ -907,7 +907,7 @@ ColorPrefView::ColorPrefView(BRect rect, bool go)
 	tempSV->SetEnabled( !globalOnly );
 	AddChild( actionColor );
 	AddChild( tempSV );
-	
+
 	// now initialize them
 	prefs->ReadString( "ChatBGColor", colTemp, defTemp = "#FFFFFF" );
 	bgColor->SetColor( isValidColor(colTemp) ? StringToColor(colTemp) : StringToColor(defTemp) );
@@ -948,10 +948,10 @@ void ColorPrefView::OpenColorPicker( BMessage* msg ) {
 	rgb_color* startColor;
 	BString title;
 	ssize_t size;
-	
+
 	cid = msg->FindInt32("cid");
 	msg->FindData( "color", B_RGB_COLOR_TYPE, (const void**)&startColor, &size );
-	
+
 	switch( cid ) {
 		case 1: title = BString( Language.get("PREFS_CDEFBGCOLOR") );
 			break;
@@ -981,27 +981,27 @@ void ColorPrefView::SetNewColor( BMessage* msg ) {
 	int cid;
 	rgb_color* startColor;
 	ssize_t size;
-	
+
 	cid = msg->FindInt32("cid");
 	msg->FindData( "color", B_RGB_COLOR_TYPE, (const void**)&startColor, &size );
-	
+
 	switch( cid ) {
-	
+
 		case 1: bgColor->SetColor( *startColor );
 			break;
-			
+
 		case 2: fontColor->SetColor( *startColor );
 			break;
-			
+
 		case 3: fromYouColor->SetColor( *startColor );
 			break;
-			
+
 		case 4: toYouColor->SetColor( *startColor );
 			break;
-			
+
 		case 5: eventColor->SetColor( *startColor );
 			break;
-			
+
 		case 6: actionColor->SetColor( *startColor );
 			break;
 	}
@@ -1022,7 +1022,7 @@ void ColorPrefView::RefreshLangStrings() {
 
 //=====================================================
 
-PrefsWindow::PrefsWindow(BRect frame, bool globalOnly) 
+PrefsWindow::PrefsWindow(BRect frame, bool globalOnly)
 			: SingleWindowBase(SW_PREFERENCES, frame, "BeAIM Preferences", B_TITLED_WINDOW,
 							   B_NOT_ZOOMABLE | B_NOT_RESIZABLE | B_ASYNCHRONOUS_CONTROLS )
 {
@@ -1057,7 +1057,7 @@ PrefsWindow::PrefsWindow(BRect frame, bool globalOnly)
 	boxRect.InsetBy( 4, 0 );
 	boxRect.bottom -= 38;
 	boxRect.top = boxRect.bottom - 1;
-	BBox* divider = new BBox(boxRect,"divider", B_FOLLOW_LEFT | B_FOLLOW_TOP, B_WILL_DRAW, B_FANCY_BORDER);	
+	BBox* divider = new BBox(boxRect,"divider", B_FOLLOW_LEFT | B_FOLLOW_TOP, B_WILL_DRAW, B_FANCY_BORDER);
 	bgView->AddChild( divider );
 
 	// setup a rect and make the panels
@@ -1083,10 +1083,10 @@ PrefsWindow::PrefsWindow(BRect frame, bool globalOnly)
 	btnCancel = new BButton(buttonrect, "Cancel", "Cancel", new BMessage(PREFS_CANCEL), B_FOLLOW_BOTTOM | B_FOLLOW_RIGHT);
 	buttonrect.right = buttonrect.left - 8;
 	buttonrect.left = buttonrect.right - 60;
-	btnSave = new BButton(buttonrect, "Save", "Save", new BMessage(PREFS_SAVE), B_FOLLOW_BOTTOM | B_FOLLOW_RIGHT);	
+	btnSave = new BButton(buttonrect, "Save", "Save", new BMessage(PREFS_SAVE), B_FOLLOW_BOTTOM | B_FOLLOW_RIGHT);
 	btnSave->MakeDefault( true );
 	bgView->AddChild(btnSave);
-	bgView->AddChild(btnCancel);	
+	bgView->AddChild(btnCancel);
 
 	// do the language strings and stuff
 	RefreshLangStrings();
@@ -1101,24 +1101,24 @@ PrefsWindow::PrefsWindow(BRect frame, bool globalOnly)
 void PrefsWindow::MessageReceived( BMessage* message ) {
 
 	switch( message->what ) {
-			
+
 		case BEAIM_COLORVIEW_CLICKED:
 			colorPrefs->OpenColorPicker(message);
 			break;
-			
+
 		case BEAIM_NEW_COLOR_PICKED:
 			colorPrefs->SetNewColor(message);
 			break;
-			
+
 		case PREFS_NEEDSAUTH_CHANGED:
 		case PREFS_PROXYMODE_CHANGED:
 			conPrefs->EnableProxyControls();
 			break;
-			
+
 		case PREFS_MAG_SIZE_CHANGED:
 			chatPrefs->MagSizeChanged();
 			break;
-			
+
 		case PREFS_TEMP_THINGY:
 			if( message->HasInt32("encoding") )
 				genPrefs->encoding = (uint32)message->FindInt32("encoding" );
@@ -1133,10 +1133,10 @@ void PrefsWindow::MessageReceived( BMessage* message ) {
 			colorPrefs->Save();
 			awayPrefs->Save();
 			keyPrefs->Save();
-			
+
 			// make sure the language is up to date
 			SaveLangIfNeeded();
-			
+
 			// send a message to all windows telling them to reload settings
 			windows->BroadcastMessage( new BMessage(BEAIM_RELOAD_PREF_SETTINGS), true );
 
@@ -1150,15 +1150,15 @@ void PrefsWindow::MessageReceived( BMessage* message ) {
 		case PREFS_RL_LANG:
 			SaveLangIfNeeded(true);
 			break;
-			
+
 		case BEAIM_REFRESH_LANG_STRINGS:
 			RefreshLangStrings();
 			break;
-			
+
 		case PREFS_SET_PROSP_LANG:
 			genPrefs->prospectiveLang = BString(message->FindString("prosplang"));
 			break;
-			
+
 		default:
 			BWindow::MessageReceived( message );
 	}
@@ -1169,7 +1169,7 @@ void PrefsWindow::MessageReceived( BMessage* message ) {
 void PrefsWindow::SaveLangIfNeeded( bool force ) {
 
 	BString curLang = BString(Language.Name());
-	
+
 	// if the prospective language doesn't match the current one,
 	// then load the new language
 	if( force || (genPrefs->prospectiveLang != curLang) ) {
@@ -1209,7 +1209,7 @@ void PrefsWindow::SetActivePanel( int32 panel ) {
 		switch(i) {
 			case 0:
 				panelPtr = genPrefs;
-				break;	
+				break;
 			case 1:
 				panelPtr = chatPrefs;
 				break;
@@ -1225,7 +1225,7 @@ void PrefsWindow::SetActivePanel( int32 panel ) {
 			default:
 				panelPtr = NULL;
 		}
-		
+
 		// if it's not supposed to be visible, hide it;
 		// if it is, show it
 		if( panelPtr ) {
@@ -1244,7 +1244,7 @@ bool PrefsWindow::QuitRequested()
 	BMessage* clsMessage = new BMessage(BEAIM_SINGLE_WINDOW_CLOSED);
 	clsMessage->AddInt32( "wtype", SW_PREFERENCES );
 	PostAppMessage( clsMessage );
-	
+
 	return(true);
 }
 
@@ -1259,7 +1259,7 @@ void PrefsWindow::DispatchMessage( BMessage* msg, BHandler* handler ) {
 			PostMessage( new BMessage(B_CANCEL) );
 			return;
 		}
-	
+
 	// our work here is done... dispatch normally
 	BWindow::DispatchMessage( msg, handler );
 }
@@ -1272,7 +1272,7 @@ void PrefsWindow::RefreshLangStrings() {
 
 	// window title
 	SetTitle( Language.get("PREFERENCES") );
-	
+
 	// relabel and move the buttons
 	btnCancel->SetLabel( Language.get("CANCEL_LABEL") );
 	btnCancel->ResizeToPreferred();
@@ -1281,7 +1281,7 @@ void PrefsWindow::RefreshLangStrings() {
 	btnSave->SetLabel( Language.get("SAVE_LABEL") );
 	btnSave->ResizeToPreferred();
 	btnSave->MoveTo( wholeWidth - btnSave->Bounds().Width(), btnSave->Frame().top );
-	
+
 	// do the panels
 	((PanelItem*)panelsview->ItemAt(0))->SetName( Language.get("PREFS_PAN_GENERAL") );
 	((PanelItem*)panelsview->ItemAt(1))->SetName( Language.get("PREFS_PAN_IMWIN") );
@@ -1310,7 +1310,7 @@ GSlider::GSlider( BRect frame, int32 min, int32 max, BTextControl* th, BTextView
 	SetHashMarkCount( 5 );
 	thang = th;
 	otherThang = oth;
-	
+
 }
 
 //-----------------------------------------------------
@@ -1326,12 +1326,13 @@ char* GSlider::UpdateText( void ) const {
 	// set the text thing to the current percentage value
 	if( thang )
 		thang->SetText( stuffage );
-		
+
 	// set the correct font size in the preview thang
 	float newSize = 13.0 * float(float(Value()) / 100.0);
 	font.SetFamilyAndStyle( "Swis721 BT", "Roman" );
 	font.SetSize( newSize );
-	otherThang->SetFontAndColor( &font );
+	if (otherThang)
+		otherThang->SetFontAndColor( &font );
 
 	return NULL;
 }
@@ -1341,7 +1342,7 @@ char* GSlider::UpdateText( void ) const {
 PanelSelectorView::PanelSelectorView( BRect frame, const char* name, list_view_type type,
 						uint32 resizingMode, uint32 flags ) : BListView( frame, name, type,
 						resizingMode, flags )
-													
+
 {
 }
 
@@ -1356,13 +1357,13 @@ void PanelSelectorView::SelectionChanged()
 {
 	PrefsWindow* owner;
 	int32 curSel = CurrentSelection();
-	
+
 	// make sure that *something* is selected
 	if( curSel == -1 ) {
 		Select( CountItems() - 1);
 		return;
 	}
-		
+
 	// now tell the window about the new selection
 	owner = (PrefsWindow*)Window();
 	owner->SetActivePanel( curSel );
@@ -1393,17 +1394,17 @@ void PanelItem::DrawItem( BView *owner, BRect frame, bool complete ) {
 	rgb_color color;
 
 	// Make the selection color (shouldn't be hardcoded!)
-	rgb_color kHighlight; 
+	rgb_color kHighlight;
 	kHighlight.red = kHighlight.blue = 222;
 	kHighlight.green = 219;
-	
+
 	// Grab the owner's font, to be fiddled with if needed
 	BFont ownerFont( *ourFont );
-	
+
 	// does the background need to be redrawn?
 	frame.left++;
 	if( IsSelected() || complete ) {
-		
+
 		// pick the appropriate background color
         if( IsSelected() ) {
         	color = kHighlight;
@@ -1412,8 +1413,8 @@ void PanelItem::DrawItem( BView *owner, BRect frame, bool complete ) {
 			color = owner->ViewColor();
 			owner->SetLowColor( 255, 255, 255 );
 		}
-	
-		// draw the background		
+
+		// draw the background
 		owner->SetHighColor(color);
 		owner->FillRect(frame);
 	}
@@ -1428,7 +1429,7 @@ void PanelItem::DrawItem( BView *owner, BRect frame, bool complete ) {
 	owner->SetFont( &ownerFont );
 	owner->MovePenTo(frame.left + 3, frame.bottom - 3);
 	owner->DrawString( name.String() );
-	
+
 	// reset the font and colors
 	owner->SetLowColor( 255, 255, 255 );
 	owner->SetHighColor( 0, 0, 0 );
